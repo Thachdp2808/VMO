@@ -22,7 +22,7 @@ public abstract class Student extends Person {
     // Tính đa hình
     @Override
     public void displayInformation() {
-       super.displayInformation();
-       System.out.println("RollNumber: " + rollNumber);
+        super.displayInformation();
+        System.out.println("RollNumber: " + rollNumber);
     }
 }
