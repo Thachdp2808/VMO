@@ -3,6 +3,7 @@ package StreamAndLamda;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class StreamMain {
     public static void main(String[] args) {
@@ -32,6 +33,17 @@ public class StreamMain {
         long count = list.stream().count();
         System.out.println(count);
 
+        List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+
+        // Sử dụng Stream để thực hiện các phép biến đổi và xử lý dữ liệu
+        List<Integer> evenNumbersSquared = numbers.stream()          // Bắt đầu Stream từ danh sách numbers
+                .filter(n -> n % 2 == 0)                            // Lọc ra các số chẵn
+                .map(n -> n * n)                                    // Tính bình phương của các số chẵn
+                .collect(Collectors.toList());                      // Thu thập kết quả vào một danh sách mới
+
+        // In ra danh sách các số chẵn đã được bình phương
+        System.out.println("Danh sách các số chẵn đã được bình phương:");
+        evenNumbersSquared.forEach(System.out::println);
 
 
     }
