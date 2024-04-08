@@ -35,9 +35,10 @@ public class ConsumerMain {
                 return false;
             }
         };
-
+//        không chấp nhận bất kỳ đối số nào và trả về một giá trị
 //        Supplier<String> randomStringSupplier = () -> "String" + new Random().nextInt();
-//
+
+//        Chấp nhận một đối số và thực hiện một phép biến đổi trên đối số đó để tạo ra một giá trị mới.
 //        // Tạo một Function để đếm độ dài của một chuỗi
 //        Function<String, Integer> stringLengthFunction = String::length;
 //
