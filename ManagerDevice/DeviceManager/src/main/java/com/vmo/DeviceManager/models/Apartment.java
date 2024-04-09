@@ -1,8 +1,14 @@
 package com.vmo.DeviceManager.models;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.util.List;
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
 
 @Entity
 @Table(name = "apartments")
@@ -16,10 +22,6 @@ public class Apartment {
     private String description;
     @OneToMany(mappedBy = "apartment")
     private List<User> users;
-
-    public Apartment(){
-
-    }
 
 
 }

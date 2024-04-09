@@ -1,8 +1,14 @@
 package com.vmo.DeviceManager.models;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.util.List;
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
 
 @Entity
 @Table(name = "categories")
@@ -17,10 +23,6 @@ public class Category {
     private String description;
     @OneToMany(mappedBy = "category")
     private List<Device> devices;
-
-    public Category(){
-
-    }
 
 
 }
