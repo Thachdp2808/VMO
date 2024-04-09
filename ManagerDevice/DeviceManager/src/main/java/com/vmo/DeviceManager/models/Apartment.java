@@ -24,4 +24,8 @@ public class Apartment {
     private List<User> users;
 
 
+    public Apartment(String address, String apartmentName) {
+        this.address = address;
+        this.apartmentName = apartmentName;
+    }
 }

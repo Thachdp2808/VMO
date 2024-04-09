@@ -18,6 +18,6 @@ public class ImageDevice {
     private String imageLink;
     @ManyToOne
     @JoinColumn(name = "device_id")
-    private Device device;
+    private Device imageDevice;
     private String name;
 }

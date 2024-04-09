@@ -25,7 +25,7 @@ public class Request {
     @ManyToOne
     @JoinColumn(name = "user_created")
     private User userCreated;
-    private User userResolve;
+    private int userResolve;
     @OneToMany(mappedBy = "request")
     private List<RequestDetail> requestDetails;
 

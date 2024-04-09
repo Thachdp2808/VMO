@@ -1,54 +1,54 @@
-package com.vmo.DeviceManager.security;
+package com.vmo.DeviceManager.services;
 
 import com.vmo.DeviceManager.models.User;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
-
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+@Data
+@AllArgsConstructor
+public class UserInforDetails implements UserDetails {
+    private User user;
 
-public class CustomUserDetails implements UserDetails {
-    private int userId;
-    private String userName;
-    private String password;
-    private String email;
-    private int phone;
-    public Collection<? extends GrantedAuthority> authorities;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return this.authorities;
+        return Collections.singleton(new SimpleGrantedAuthority("ROLE_STAFF"));
     }
-
-
 
     @Override
     public String getPassword() {
-        return null;
+        return user.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return null;
+        return user.getEmail();
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return false;
+        return true;
     }
 }

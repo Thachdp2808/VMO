@@ -2,14 +2,9 @@ package com.vmo.DeviceManager.models;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.sql.Date;
-import java.util.Collection;
 import java.util.List;
-
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -18,10 +13,9 @@ import java.util.List;
 
 @Entity
 @Table(name = "users")
-public class User implements UserDetails {
+public class User{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column( name = "user_id")
     private int userId;
     @Column(nullable = false, name = "first_name")
     private String firstName;
@@ -37,15 +31,14 @@ public class User implements UserDetails {
     private String password;
     @Column(name = "job_title")
     private String jobTitle;
-    @ManyToOne
-    @JoinColumn(name = "user_role")
-    private Role role;
+    @Enumerated(EnumType.STRING)
+    private Erole role;
     private String otp;
     @Column(name = "otp_time")
     private Date otpTime;
 
     @ManyToOne
-    @JoinColumn(nullable = false, name = "apartment_id")
+    @JoinColumn( name = "apartment_id")
     private Apartment apartment;
     @OneToMany(mappedBy = "userCreated")
     private List<Request> requestCreated;
@@ -53,33 +46,5 @@ public class User implements UserDetails {
     private List<ImageUser> images;
 
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
-    }
 
-    @Override
-    public String getUsername() {
-        return null;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return false;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
 }

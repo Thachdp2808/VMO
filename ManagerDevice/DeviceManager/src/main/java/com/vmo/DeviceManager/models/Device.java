@@ -15,7 +15,6 @@ import java.util.List;
 public class Device {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "device_id")
     private int deviceId;
     @Column(nullable = false, name = "device_name")
     private String deviceName;
@@ -27,7 +26,7 @@ public class Device {
     private int price;
     @OneToMany(mappedBy = "device")
     private List<RequestDetail> requestDetails;
-    @OneToMany(mappedBy = "device")
+    @OneToMany(mappedBy = "imageDevice")
     private List<ImageDevice> images;
 
 

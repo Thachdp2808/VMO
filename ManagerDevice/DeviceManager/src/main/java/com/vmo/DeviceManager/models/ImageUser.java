@@ -8,9 +8,9 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+
 @Entity
 @Table(name = "image_users")
-
 public class ImageUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
