@@ -1,5 +1,6 @@
 package com.vmo.DeviceManager.filter;
 
+import com.vmo.DeviceManager.models.Erole;
 import com.vmo.DeviceManager.services.JwtService;
 import com.vmo.DeviceManager.services.UserService;
 import jakarta.servlet.FilterChain;
@@ -39,11 +40,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         if (useremail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userService.loadUserByUsername(useremail);
             if (jwtService.validateToken(token, userDetails)) {
-                SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+                System.out.println("Token already");
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                securityContext.setAuthentication(authToken);
-                SecurityContextHolder.setContext(securityContext);
+                System.out.println(userDetails.getAuthorities());
+                System.out.println(userDetails.getUsername());
+                System.out.println(Erole.ROLE_USER.name());
+                SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
         filterChain.doFilter(request, response);

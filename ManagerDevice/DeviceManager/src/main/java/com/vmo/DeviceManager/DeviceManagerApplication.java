@@ -27,7 +27,6 @@ public class DeviceManagerApplication implements CommandLineRunner {
 			user.setFirstName("admin");
 			user.setLastName("admin");
 			user.setPassword(new BCryptPasswordEncoder().encode("admin"));
-
 			user.setRole(Erole.ROLE_ADMIN);
 			 userRepository.save(user);
 

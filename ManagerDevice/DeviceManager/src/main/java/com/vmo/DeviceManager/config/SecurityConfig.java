@@ -1,6 +1,7 @@
 package com.vmo.DeviceManager.config;
 
 import com.vmo.DeviceManager.filter.JwtAuthFilter;
+import com.vmo.DeviceManager.models.Erole;
 import com.vmo.DeviceManager.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -12,18 +13,20 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
     @Autowired
-    private JwtAuthFilter authFilter;
+    private JwtAuthFilter jwtAuthFilter;
 
     // User Creation
     @Bean
@@ -34,33 +37,16 @@ public class SecurityConfig {
     // Configuring HttpSecurity
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
-        http
-                .formLogin(f->f.loginPage("/login")
-                        .usernameParameter("username")
-                        .passwordParameter("password")
-                        .successHandler((request, response, authentication) -> {
-                            for (GrantedAuthority auth : authentication.getAuthorities()) {
-                                if ("ROLE_ADMIN".equals(auth.getAuthority()) ) {
-                                    response.sendRedirect("/admin/dashboard");
-                                    return;
-                                }
-
-                            }
-                            response.sendRedirect("/");
-                        }))
-                .authorizeHttpRequests(at -> at
-                        .requestMatchers("/admin/**", "/test").hasAnyRole( "STAFF")
-                        .anyRequest().permitAll())
-                .exceptionHandling(e -> e
-                        .accessDeniedPage("/403")); // Chuyển hướng đến trang 403.html khi không có quyền
-        ;
+        http.csrf().disable()
+                .authorizeHttpRequests(request -> request.anyRequest().authenticated()
+                        )
+                .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authenticationProvider(authenticationProvider()).addFilterBefore(
+                        jwtAuthFilter, UsernamePasswordAuthenticationFilter.class
+                );
         return http.build();
+
     }
-
-
-
-
     // Password Encoding
     @Bean
     public PasswordEncoder passwordEncoder() {
