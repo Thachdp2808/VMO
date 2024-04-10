@@ -36,7 +36,7 @@ public class User implements UserDetails {
     private String password;
     @Column(name = "job_title")
     private String jobTitle;
-    @Enumerated(EnumType.STRING)
+
     private Erole role;
     private String otp;
     @Column(name = "otp_time")

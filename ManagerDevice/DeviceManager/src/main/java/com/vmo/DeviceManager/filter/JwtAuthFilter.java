@@ -16,6 +16,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.thymeleaf.util.StringUtils;
 
 import java.io.IOException;
 @Component
@@ -29,23 +30,28 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
-        String token = null;
-        String useremail = null;
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+        String token;
+        String useremail ;
+        if (StringUtils.isEmpty(authHeader) && !org.apache.commons.lang3.StringUtils.startsWith(authHeader,"Bearer ")) {
             filterChain.doFilter(request,response);
-            token = authHeader.substring(7);
-            useremail = jwtService.extractUsername(token);
+            System.out.println("Token already");
+            return;
         }
+        token = authHeader.substring(7);
+        useremail = jwtService.extractUsername(token);
 
-        if (useremail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (StringUtils.isEmpty(useremail) && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userService.loadUserByUsername(useremail);
             if (jwtService.validateToken(token, userDetails)) {
+                SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
                 System.out.println("Token already");
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 System.out.println(userDetails.getAuthorities());
                 System.out.println(userDetails.getUsername());
                 System.out.println(Erole.ROLE_USER.name());
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                securityContext.setAuthentication(authToken);
+                SecurityContextHolder.setContext(securityContext);
             }
         }
         filterChain.doFilter(request, response);
