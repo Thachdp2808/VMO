@@ -1,5 +1,6 @@
 package com.vmo.DeviceManager.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -43,17 +44,19 @@ public class User implements UserDetails {
     private Date otpTime;
 
     @ManyToOne
-    @JoinColumn( name = "apartment_id")
-    private Apartment apartment;
-    @OneToMany(mappedBy = "userCreated")
+    @JoinColumn( name = "department_id")
+    private Department department;
+    @OneToMany(mappedBy = "userCreated", fetch = FetchType.EAGER)
     private List<Request> requestCreated;
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private List<ImageUser> images;
+
+
 
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(new SimpleGrantedAuthority(role.name()));
+        return Collections.singleton(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
     @Override

@@ -1,8 +1,7 @@
 package com.vmo.DeviceManager.config;
 
 import com.vmo.DeviceManager.filter.JwtAuthFilter;
-import com.vmo.DeviceManager.models.Erole;
-import com.vmo.DeviceManager.services.UserService;
+import com.vmo.DeviceManager.services.UserDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,9 +12,8 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -29,20 +27,24 @@ public class SecurityConfig {
     private JwtAuthFilter jwtAuthFilter;
 
     // User Creation
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return new UserService();
+    private final UserDetailService userDetailsService;
+
+    public SecurityConfig(UserDetailService userDetailsService) {
+        this.userDetailsService = userDetailsService;
     }
+
 
     // Configuring HttpSecurity
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(request -> request.requestMatchers("/api/v1/auth/**")
-                        .permitAll()
-                        .requestMatchers("/api/v1/admin").hasAuthority(Erole.ROLE_ADMIN.name())
-                        .requestMatchers("/api/v1/user").hasAuthority(Erole.ROLE_USER.name())
-                        .anyRequest().authenticated())
+                .authorizeHttpRequests(request -> {
+                    request.requestMatchers("/api/v1/auth/**")
+                            .permitAll();
+                    request.requestMatchers("/api/v1/admin/**").hasAnyRole("ADMIN");
+                    request.requestMatchers("/api/v1/user/**").hasAnyRole("USER")
+                            .anyRequest().authenticated();
+                })
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider()).addFilterBefore(
                         jwtAuthFilter, UsernamePasswordAuthenticationFilter.class
@@ -50,6 +52,7 @@ public class SecurityConfig {
         return http.build();
 
     }
+
     // Password Encoding
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -59,7 +62,7 @@ public class SecurityConfig {
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(userDetailsService());
+        authenticationProvider.setUserDetailsService(userDetailsService.userDetailsService());
         authenticationProvider.setPasswordEncoder(passwordEncoder());
         return authenticationProvider;
     }

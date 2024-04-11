@@ -4,8 +4,10 @@ import com.vmo.DeviceManager.jwt.AuthRequest;
 import com.vmo.DeviceManager.jwt.JwtAuthenticationReponse;
 import com.vmo.DeviceManager.jwt.RefreshTokenRequest;
 import com.vmo.DeviceManager.jwt.SigninAuthen;
+import com.vmo.DeviceManager.models.Department;
 import com.vmo.DeviceManager.models.Erole;
 import com.vmo.DeviceManager.models.User;
+import com.vmo.DeviceManager.repositories.DepartmentRepository;
 import com.vmo.DeviceManager.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +23,10 @@ import java.util.HashMap;
 public class AuthenticationService {
     @Autowired
     UserRepository userRepository;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
+    private final PasswordEncoder passwordEncoder;
+
+    private final DepartmentService departmentService;
     private final AuthenticationManager authenticationManager;
 
     private final JwtService jwtService;
@@ -34,7 +37,9 @@ public class AuthenticationService {
         user.setFirstName(authRequest.getFirstName());
         user.setLastName(authRequest.getLastName());
         user.setPassword(passwordEncoder.encode(authRequest.getPassword()));
-        user.setRole(Erole.ROLE_USER);
+        Department department = departmentService.findById(authRequest.getDepartmentId());
+        user.setDepartment(department);
+        user.setRole(Erole.USER);
         return userRepository.save(user);
     }
 
@@ -43,7 +48,6 @@ public class AuthenticationService {
         var user = userRepository.findByEmail(signinAuthen.getEmail()).orElseThrow(() -> new IllegalArgumentException("In valid email or password"));
         var jwt = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(new HashMap<>(),user);
-
         JwtAuthenticationReponse jwtAuthenticationReponse = new JwtAuthenticationReponse();
         jwtAuthenticationReponse.setToken(jwt);
         jwtAuthenticationReponse.setRefreshToken(refreshToken);

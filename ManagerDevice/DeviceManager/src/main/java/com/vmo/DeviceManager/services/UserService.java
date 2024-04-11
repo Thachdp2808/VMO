@@ -1,25 +1,20 @@
 package com.vmo.DeviceManager.services;
 
+import com.vmo.DeviceManager.jwt.AuthRequest;
 import com.vmo.DeviceManager.models.User;
-import com.vmo.DeviceManager.repositories.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.vmo.DeviceManager.models.dto.UserDto;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.util.List;
 
 @Service
-public class UserService implements UserDetailsService {
-    @Autowired
-    private UserRepository userRepository;
+public interface UserService  {
+     UserDto getUserById(int id);
 
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-    }
+     List<UserDto> searchUser(String keyword);
 
+     void updateUserbyId(int id, AuthRequest authRequest);
 
 }

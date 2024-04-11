@@ -2,6 +2,7 @@ package com.vmo.DeviceManager.filter;
 
 import com.vmo.DeviceManager.models.Erole;
 import com.vmo.DeviceManager.services.JwtService;
+import com.vmo.DeviceManager.services.UserDetailService;
 import com.vmo.DeviceManager.services.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -9,10 +10,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -25,8 +28,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Autowired
     private JwtService jwtService;
 
-    @Autowired
-    private UserService userService;
+    private final UserDetailService userDetailService;
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
@@ -40,18 +42,17 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         token = authHeader.substring(7);
         useremail = jwtService.extractUsername(token);
 
-        if (StringUtils.isEmpty(useremail) && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userService.loadUserByUsername(useremail);
+        if (!StringUtils.isEmpty(useremail) && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = userDetailService.userDetailsService().loadUserByUsername(useremail);
             if (jwtService.validateToken(token, userDetails)) {
-                SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
                 System.out.println("Token already");
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 System.out.println(userDetails.getAuthorities());
                 System.out.println(userDetails.getUsername());
-                System.out.println(Erole.ROLE_USER.name());
+
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                securityContext.setAuthentication(authToken);
-                SecurityContextHolder.setContext(securityContext);
+                System.out.println(authToken.getAuthorities().toString());
+                SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
         filterChain.doFilter(request, response);

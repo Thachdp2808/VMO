@@ -13,6 +13,5 @@ public class AuthRequest {
     private String email;
     private String firstName;
     private String lastName;
-    private String departmentId;
-    private String apartmentId;
+    private int departmentId;
 }
