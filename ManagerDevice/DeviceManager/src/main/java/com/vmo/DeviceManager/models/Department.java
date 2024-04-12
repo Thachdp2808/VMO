@@ -1,5 +1,6 @@
 package com.vmo.DeviceManager.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,6 +22,7 @@ public class Department {
     private String address;
     private String description;
     @OneToMany(mappedBy = "department", fetch = FetchType.EAGER, cascade=CascadeType.ALL)
+    @JsonIgnore
     private List<User> users;
 
     @Override

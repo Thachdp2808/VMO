@@ -1,8 +1,7 @@
 package com.vmo.DeviceManager.repositories;
 
-import com.vmo.DeviceManager.models.Erole;
+import com.vmo.DeviceManager.models.enumEntity.Erole;
 import com.vmo.DeviceManager.models.User;
-import com.vmo.DeviceManager.models.dto.UserDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

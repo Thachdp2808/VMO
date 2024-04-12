@@ -1,6 +1,6 @@
 package com.vmo.DeviceManager.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.vmo.DeviceManager.models.enumEntity.Erole;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -50,7 +50,6 @@ public class User implements UserDetails {
     private List<Request> requestCreated;
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private List<ImageUser> images;
-
 
 
 

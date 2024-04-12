@@ -1,5 +1,6 @@
 package com.vmo.DeviceManager.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,6 +23,7 @@ public class Category {
     private String type;
     private String description;
     @OneToMany(mappedBy = "category")
+    @JsonIgnore
     private List<Device> devices;
 
 

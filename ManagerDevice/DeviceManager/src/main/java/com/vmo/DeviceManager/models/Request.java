@@ -1,5 +1,6 @@
 package com.vmo.DeviceManager.models;
 
+import com.vmo.DeviceManager.models.enumEntity.EstatusRequest;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,7 +22,7 @@ public class Request {
     private Date createdDate;
     @Column(nullable = false, name = "resolve_date")
     private Date resolveDate;
-    private int status;
+    private EstatusRequest status;
     @ManyToOne
     @JoinColumn(name = "user_created")
     private User userCreated;

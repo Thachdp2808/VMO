@@ -1,7 +1,7 @@
 package com.vmo.DeviceManager.models.dto;
 
 import com.vmo.DeviceManager.models.Department;
-import com.vmo.DeviceManager.models.Erole;
+import com.vmo.DeviceManager.models.enumEntity.Erole;
 import lombok.*;
 
 @Getter

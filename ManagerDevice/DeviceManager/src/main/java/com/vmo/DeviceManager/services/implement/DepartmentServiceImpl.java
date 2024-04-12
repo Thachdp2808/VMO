@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class DepartmentImpl implements DepartmentService {
+public class DepartmentServiceImpl implements DepartmentService {
     @Autowired
     DepartmentRepository departmentRepository;
     @Override

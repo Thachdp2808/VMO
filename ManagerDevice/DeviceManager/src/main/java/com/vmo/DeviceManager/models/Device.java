@@ -1,5 +1,6 @@
 package com.vmo.DeviceManager.models;
 
+import com.vmo.DeviceManager.models.enumEntity.EstatusDevice;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,7 +22,7 @@ public class Device {
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
-    private int status;
+    private EstatusDevice status;
     private String description;
     private int price;
     @OneToMany(mappedBy = "device")
