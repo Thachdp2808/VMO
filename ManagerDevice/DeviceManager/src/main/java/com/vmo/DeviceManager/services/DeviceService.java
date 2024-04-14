@@ -10,7 +10,7 @@ public interface DeviceService {
     List<Device> getDeviceByStatus(int status);
 
     List<Device> getAllDevice();
-    List<Device> getDeviceById(int id);
+    Device getDeviceById(int id);
 
     Page<Device> pageAndSearch(List<Device> listDevice, String keyword, String type, Integer pageNo);
 

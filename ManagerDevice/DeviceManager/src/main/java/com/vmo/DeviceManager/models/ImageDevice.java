@@ -14,10 +14,10 @@ public class ImageDevice {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int imageid;
-    @Column(name = "image_link")
+    @Column(nullable = false, name = "image_link")
     private String imageLink;
     @ManyToOne
-    @JoinColumn(name = "device_id")
+    @JoinColumn(nullable = false, name = "device_id")
     private Device imageDevice;
     private String name;
 }

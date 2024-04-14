@@ -24,14 +24,4 @@ public class Department {
     @OneToMany(mappedBy = "department", fetch = FetchType.EAGER, cascade=CascadeType.ALL)
     @JsonIgnore
     private List<User> users;
-
-    @Override
-    public String toString() {
-        return "Department{" +
-                "departmentId=" + departmentId +
-                ", departmentName='" + departmentName + '\'' +
-                ", address='" + address + '\'' +
-                ", description='" + description + '\'' +
-                '}';
-    }
 }

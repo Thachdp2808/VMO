@@ -2,6 +2,8 @@ package com.vmo.DeviceManager.models.mapper;
 
 import com.vmo.DeviceManager.models.User;
 import com.vmo.DeviceManager.models.dto.UserDto;
+import lombok.*;
+
 
 public class UserMapper {
     // Tái sử dụng code

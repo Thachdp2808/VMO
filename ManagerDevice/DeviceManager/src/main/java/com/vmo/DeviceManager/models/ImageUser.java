@@ -15,10 +15,10 @@ public class ImageUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int imageid;
-    @Column(name = "image_link")
+    @Column(nullable = false, name = "image_link")
     private String imageLink;
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(nullable = false, name = "user_id")
     private User user;
     private String name;
 }

@@ -1,9 +1,15 @@
 package com.vmo.DeviceManager.controllers;
 
+import com.vmo.DeviceManager.jwt.AuthRequest;
 import com.vmo.DeviceManager.models.Device;
+import com.vmo.DeviceManager.models.Request;
 import com.vmo.DeviceManager.models.User;
+import com.vmo.DeviceManager.models.dto.RequestDto;
 import com.vmo.DeviceManager.models.dto.UserDto;
+import com.vmo.DeviceManager.models.enumEntity.EstatusRequest;
 import com.vmo.DeviceManager.services.DeviceService;
+import com.vmo.DeviceManager.services.RequestDetailService;
+import com.vmo.DeviceManager.services.RequestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,21 +17,23 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.sql.Date;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
 @RestController
-@RequestMapping("/device")
+@RequestMapping("")
 @RequiredArgsConstructor
 public class DeviceController {
     private final DeviceService deviceService;
+    private final RequestService requestService;
+    private final RequestDetailService requestDetailService;
 
-    @GetMapping("")
+    @GetMapping("/device")
     public ResponseEntity<?> getDevice(@RequestParam(name = "keyword", required = false, defaultValue = "") String keyword,
                                        @RequestParam(name = "type", required = false, defaultValue = "name") String type,
                                        @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo){
@@ -34,26 +42,16 @@ public class DeviceController {
         return listDevice.isEmpty() ? ResponseEntity.ok("Device does not exist") : ResponseEntity.ok(listDevice.getContent());
     }
 
-//    @GetMapping("/search")
-//    public ResponseEntity<?> searchDevices(
-//            ,
-//            ) {
-//
-//        List<Device> devices;
-//        // Truyền vào string return về List
-//        Function<String, List<Device>> searchFunction =
-//                type.equals("name") ? deviceService::searchByName :
-//                type.equals("category") ? key -> deviceService.searchByCategory(Integer.parseInt(key)) :
-//                type.equals("type") ? deviceService::searchByType : null;
-//
-//        if (searchFunction != null) {
-//            List<Device> listDevice = deviceRepository.findAll();
-//            devices = searchFunction.apply(listDevice,keyword);
-//            return ResponseEntity.ok(devices.isEmpty() ? "Device does not exist" : devices);
-//        } else {
-//            return ResponseEntity.badRequest().body("Invalid search type");
-//        }
-//    }
+    @PostMapping("/addRequest")
+    public ResponseEntity<?> addRequest(@RequestBody RequestDto requestDto){
+        Request request = new Request();
+        request.setReason(requestDto.getReason());
+        requestService.addRequest(request);
+
+        requestDetailService.saveRequestDetail(request,requestDto);
+
+        return ResponseEntity.ok("Add request success");
+    }
 
 
 }

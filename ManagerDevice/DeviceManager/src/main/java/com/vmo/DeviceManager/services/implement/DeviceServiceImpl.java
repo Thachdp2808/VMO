@@ -37,10 +37,9 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     @Override
-    public List<Device> getDeviceById(int id) {
+    public Device getDeviceById(int id) {
         //Sửa lại
-        List<Device> listDevice = deviceRepository.findAll();
-        return null;
+        return deviceRepository.findById(id).orElseThrow(() -> new RuntimeException("Device does not exits"));
     }
 
     @Override

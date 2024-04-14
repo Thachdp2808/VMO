@@ -31,6 +31,7 @@ public class UserDto {
                 ", address='" + address + '\'' +
                 ", jobTitle='" + jobTitle + '\'' +
                 ", role=" + role +
+                ", department=" + department.getDepartmentId() +
                 '}';
     }
 }

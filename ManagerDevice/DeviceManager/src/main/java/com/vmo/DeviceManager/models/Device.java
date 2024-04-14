@@ -1,5 +1,6 @@
 package com.vmo.DeviceManager.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.vmo.DeviceManager.models.enumEntity.EstatusDevice;
 import jakarta.persistence.*;
 import lombok.*;
@@ -25,9 +26,10 @@ public class Device {
     private EstatusDevice status;
     private String description;
     private int price;
-    @OneToMany(mappedBy = "device")
+    @OneToMany(mappedBy = "device", fetch = FetchType.EAGER)
+    @JsonIgnore
     private List<RequestDetail> requestDetails;
-    @OneToMany(mappedBy = "imageDevice")
+    @OneToMany(mappedBy = "imageDevice", fetch = FetchType.EAGER)
     private List<ImageDevice> images;
 
 

@@ -1,5 +1,6 @@
 package com.vmo.DeviceManager.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.vmo.DeviceManager.models.enumEntity.Erole;
 import jakarta.persistence.*;
 import lombok.*;
@@ -46,12 +47,31 @@ public class User implements UserDetails {
     @ManyToOne
     @JoinColumn( name = "department_id")
     private Department department;
-    @OneToMany(mappedBy = "userCreated", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "userCreated", fetch = FetchType.EAGER, cascade=CascadeType.ALL)
+    @JsonIgnore
     private List<Request> requestCreated;
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private List<ImageUser> images;
 
-
+    @Override
+    public String toString() {
+        return "User{" +
+                "userId=" + userId +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", phone=" + phone +
+                ", email='" + email + '\'' +
+                ", address='" + address + '\'' +
+                ", password='" + password + '\'' +
+                ", jobTitle='" + jobTitle + '\'' +
+                ", role=" + role +
+                ", otp='" + otp + '\'' +
+                ", otpTime=" + otpTime +
+                ", department=" + department.getDepartmentId() +
+                ", requestCreated=" + requestCreated +
+                ", images=" + images +
+                '}';
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
