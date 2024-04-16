@@ -2,6 +2,7 @@ package com.vmo.DeviceManager.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.vmo.DeviceManager.models.enumEntity.Erole;
+import com.vmo.DeviceManager.models.enumEntity.EstatusUser;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -9,6 +10,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -38,11 +40,11 @@ public class User implements UserDetails {
     private String password;
     @Column(name = "job_title")
     private String jobTitle;
-
+    private EstatusUser status;
     private Erole role;
     private String otp;
     @Column(name = "otp_time")
-    private Date otpTime;
+    private LocalDateTime otpTime;
 
     @ManyToOne
     @JoinColumn( name = "department_id")
@@ -65,6 +67,7 @@ public class User implements UserDetails {
                 ", password='" + password + '\'' +
                 ", jobTitle='" + jobTitle + '\'' +
                 ", role=" + role +
+                ", status=" + status +
                 ", otp='" + otp + '\'' +
                 ", otpTime=" + otpTime +
                 ", department=" + department.getDepartmentId() +

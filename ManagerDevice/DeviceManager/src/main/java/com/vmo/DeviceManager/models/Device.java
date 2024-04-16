@@ -30,6 +30,7 @@ public class Device {
     @JsonIgnore
     private List<RequestDetail> requestDetails;
     @OneToMany(mappedBy = "imageDevice", fetch = FetchType.EAGER)
+    @JsonIgnore
     private List<ImageDevice> images;
 
 

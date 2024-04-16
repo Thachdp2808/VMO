@@ -4,12 +4,14 @@ import com.vmo.DeviceManager.models.Device;
 import com.vmo.DeviceManager.models.Request;
 import com.vmo.DeviceManager.models.RequestDetail;
 import com.vmo.DeviceManager.models.dto.RequestDto;
+import com.vmo.DeviceManager.models.enumEntity.EstatusDevice;
 import com.vmo.DeviceManager.repositories.RequestDetailRepository;
 import com.vmo.DeviceManager.services.DeviceService;
 import com.vmo.DeviceManager.services.RequestDetailService;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.sql.Date;
 import java.util.List;
 @Service
 public class RequestDetailServiceImpl implements RequestDetailService {
@@ -23,17 +25,14 @@ public class RequestDetailServiceImpl implements RequestDetailService {
 
 
     @Override
-    public void saveRequestDetail(Request request, RequestDto requestDto) {
-        List<Device> devices = new ArrayList<>();
-        for(Integer deviceId: requestDto.getDeviceIds()){
-            devices.add(deviceService.getDeviceById(deviceId));
-        }
-        for(Device device : devices){
+    public void saveRequestDetail(Request request, List<Device> listDevice,Date start, Date end) {
+
+        for(Device device : listDevice){
             RequestDetail requestDetail = new RequestDetail();
             requestDetail.setRequest(request);
             requestDetail.setDevice(device);
-            requestDetail.setStartTime(requestDto.getStart());
-            requestDetail.setEndTime(requestDto.getEnd());
+            requestDetail.setStartTime(start);
+            requestDetail.setEndTime(end);
             requestDetailRepository.save(requestDetail);
         }
     }

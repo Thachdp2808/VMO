@@ -3,6 +3,7 @@ package com.vmo.DeviceManager.services.implement;
 import com.vmo.DeviceManager.jwt.AuthRequest;
 import com.vmo.DeviceManager.models.dto.UserDto;
 import com.vmo.DeviceManager.models.User;
+import com.vmo.DeviceManager.models.enumEntity.EstatusUser;
 import com.vmo.DeviceManager.models.mapper.UserMapper;
 import com.vmo.DeviceManager.repositories.UserRepository;
 import com.vmo.DeviceManager.services.DepartmentService;
@@ -33,6 +34,13 @@ public class UserServiceImpl implements UserService {
     public UserDto getUserById(int id) {
         User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("Account does not exits"));
         return UserMapper.toUserDto(user) ;
+    }
+
+    @Override
+    public void deActiveUser(int userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("Account does not exits"));
+        user.setStatus(EstatusUser.Deactive);
+        userRepository.save(user);
     }
 
     @Override

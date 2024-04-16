@@ -2,6 +2,7 @@ package com.vmo.DeviceManager.models.dto;
 
 import com.vmo.DeviceManager.models.Department;
 import com.vmo.DeviceManager.models.enumEntity.Erole;
+import com.vmo.DeviceManager.models.enumEntity.EstatusUser;
 import lombok.*;
 
 @Getter
@@ -17,6 +18,7 @@ public class UserDto {
     private String email;
     private String address;
     private String jobTitle;
+    private EstatusUser status;
     private Erole role;
     private Department department;
 

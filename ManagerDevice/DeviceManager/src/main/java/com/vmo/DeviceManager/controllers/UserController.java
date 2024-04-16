@@ -29,29 +29,25 @@ public class UserController {
     public ResponseEntity<String> sayHello(){
         return ResponseEntity.ok("Hi User");
     }
-    @GetMapping("/mydevice")
+    @GetMapping("/viewDevice")
     public ResponseEntity<?> getDevice(@RequestParam(name = "keyword", required = false, defaultValue = "") String keyword,
                                        @RequestParam(name = "type", required = false, defaultValue = "name") String type,
-                                       @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo){
+                                       @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                       @RequestParam(name = "pageSize", defaultValue = "4") Integer pageSize){
         List<Device> devices = deviceService.getAllDevice();
-        Page<Device> listDevice = deviceService.pageAndSearch(devices, keyword, type, pageNo);
+        Page<Device> listDevice = deviceService.pageAndSearch(devices, keyword, type, pageNo, pageSize);
         return listDevice.isEmpty() ? ResponseEntity.ok("Device does not exist") : ResponseEntity.ok(listDevice.getContent());
+    }
+    @GetMapping("/viewMyDevice")
+    public ResponseEntity<?> getMyDevice(){
+        List<Device> devices = deviceService.getMyDevice();
+        return devices.isEmpty() ? ResponseEntity.ok("Device does not exist") : ResponseEntity.ok(devices);
     }
     @GetMapping("/viewRequest")
     public ResponseEntity<?> viewMyRequest(){
         List<Request> listRequest = requestService.getRequestByCreatedUser();
         return listRequest.isEmpty() ? ResponseEntity.ok("Request does not exist") : ResponseEntity.ok(listRequest);
     }
-    @GetMapping("/sendRequest/{id}")
-    public ResponseEntity<?> sendRequest(@PathVariable int id){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = (User) authentication.getPrincipal();
-        Request request = requestService.findByRequestId(id);
-        if(currentUser.getUserId() == request.getUserCreated().getUserId()){
-            requestService.sendRequest(id);
-            return ResponseEntity.ok("Send success");
-        }
-        return ResponseEntity.ok("Send Fail");
 
-    }
+
 }

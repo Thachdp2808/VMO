@@ -18,9 +18,7 @@ public interface RequestRepository extends JpaRepository<Request, Integer> {
     List<Request> findByUserCreated(User userCreated);
 
     Request findByRequestId(int id);
-    @Modifying
-    @Transactional
-    @Query("UPDATE Request r SET r.status = 1 WHERE r.requestId = ?1 ")
-    void sendRequest(int id);
+    @Query("SELECT Max(requestId) FROM Request ")
+    int getLastId();
 
 }

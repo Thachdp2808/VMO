@@ -13,6 +13,8 @@ import java.util.List;
 public interface UserService  {
      UserDto getUserById(int id);
 
+     void deActiveUser(int userId);
+
      List<UserDto> searchUser(String keyword);
 
      void updateUserbyId(int id, AuthRequest authRequest);

@@ -3,6 +3,7 @@ package com.vmo.DeviceManager;
 import com.vmo.DeviceManager.models.Department;
 import com.vmo.DeviceManager.models.enumEntity.Erole;
 import com.vmo.DeviceManager.models.User;
+import com.vmo.DeviceManager.models.enumEntity.EstatusUser;
 import com.vmo.DeviceManager.repositories.DepartmentRepository;
 import com.vmo.DeviceManager.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,7 @@ public class DeviceManagerApplication implements CommandLineRunner {
 			user.setLastName("admin");
 			user.setPassword(new BCryptPasswordEncoder().encode("admin"));
 			user.setDepartment(department);
+			user.setStatus(EstatusUser.Active);
 			user.setRole(Erole.ADMIN);
 			 userRepository.save(user);
 
