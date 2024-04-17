@@ -86,7 +86,7 @@ public class AuthenticationService {
         user.setOtp(otp);
         user.setOtpTime(LocalDateTime.now());
         userRepository.save(user);
-        return "Email sent... please verify account within 1 minute";
+        return "Email sent... please check account within 1 minute";
     }
 
     public JwtAuthenticationReponse signin(SigninAuthen signinAuthen){
@@ -118,4 +118,17 @@ public class AuthenticationService {
         return null;
     }
 
+    public JwtAuthenticationReponse changePassword(String email, String password, String otp) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with this email: " + email));
+        JwtAuthenticationReponse jwtAuthenticationReponse = new JwtAuthenticationReponse();
+        if (user.getOtp().equals(otp) && Duration.between(user.getOtpTime(),
+                LocalDateTime.now()).getSeconds() < (1 * 60)) {
+            user.setPassword(passwordEncoder.encode(password));
+            var jwt = jwtService.generateToken(user);
+            jwtAuthenticationReponse.setToken(jwt);
+            userRepository.save(user);
+        }
+        return jwtAuthenticationReponse;
+    }
 }

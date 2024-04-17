@@ -43,4 +43,10 @@ public class AuthenticationController {
     public ResponseEntity<JwtAuthenticationReponse> refresh(@RequestBody RefreshTokenRequest refreshTokenRequest){
         return ResponseEntity.ok(authenticationService.refreshToken(refreshTokenRequest));
     }
+
+    @PostMapping("/changePassword")
+    public ResponseEntity<?> changePassword(@RequestParam String email,
+                                            @RequestParam String otp,@RequestBody  SigninAuthen signinAuthen){
+        return ResponseEntity.ok(authenticationService.changePassword(email, signinAuthen.getPassword(), otp));
+    }
 }
