@@ -19,12 +19,14 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
 import java.sql.Date;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.Temporal;
 import java.util.HashMap;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -130,5 +132,34 @@ public class AuthenticationService {
             userRepository.save(user);
         }
         return jwtAuthenticationReponse;
+    }
+
+    public String resetPassword(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with this email: " + email));
+        String newPass = generateRandomPassword(15);
+        String password = passwordEncoder.encode(newPass);
+        try {
+            emailUtil.sendPassEmail(email, newPass);
+        } catch (MessagingException e) {
+            throw new RuntimeException("Unable to send password please try again");
+        }
+        var jwt = jwtService.generateToken(user);
+        JwtAuthenticationReponse jwtAuthenticationReponse = new JwtAuthenticationReponse();
+        jwtAuthenticationReponse.setToken(jwt);
+        user.setPassword(password);
+        userRepository.save(user);
+        return "New password sent your email... please check account within 1 minute";
+    }
+    private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
+
+    public static String generateRandomPassword(int length) {
+        SecureRandom random = new SecureRandom();
+        StringBuilder sb = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            int randomIndex = random.nextInt(CHARACTERS.length());
+            sb.append(CHARACTERS.charAt(randomIndex));
+        }
+        return sb.toString();
     }
 }

@@ -49,4 +49,8 @@ public class AuthenticationController {
                                             @RequestParam String otp,@RequestBody  SigninAuthen signinAuthen){
         return ResponseEntity.ok(authenticationService.changePassword(email, signinAuthen.getPassword(), otp));
     }
+    @PostMapping("/resetPassword")
+    public ResponseEntity<?> changePassword(@RequestParam String email){
+        return ResponseEntity.ok(authenticationService.resetPassword(email));
+    }
 }

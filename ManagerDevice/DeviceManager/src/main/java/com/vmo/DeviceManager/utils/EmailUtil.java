@@ -25,4 +25,17 @@ public class EmailUtil {
 
         javaMailSender.send(mimeMessage);
     }
+
+    public void sendPassEmail(String email, String password) throws MessagingException {
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage);
+        mimeMessageHelper.setTo(email);
+        mimeMessageHelper.setSubject("Reset Password");
+        mimeMessageHelper.setText("""
+        <h2>We got a request to reset your password.</h2>
+        <p><strong>New Password:</strong> %s</p>
+         """.formatted(password), true);
+
+        javaMailSender.send(mimeMessage);
+    }
 }
