@@ -39,7 +39,7 @@ public class AdminController {
     }
     @PostMapping("/addDevice")
     public ResponseEntity<?> addDevice(@RequestBody DeviceDto deviceDto){
-        return deviceService.addDevice(deviceDto) == 0 ? ResponseEntity.ok("Save device fail") : ResponseEntity.ok("Save device success");
+        return ResponseEntity.ok(deviceService.addDevice(deviceDto));
     }
 
     @PostMapping("/updateDevice/{id}")
@@ -50,14 +50,12 @@ public class AdminController {
 
     @PostMapping("/approve/{id}")
     public ResponseEntity<?> addRequest(@PathVariable int id){
-        requestService.approveRequest(id);
-        return ResponseEntity.ok("Approve request success");
+        return ResponseEntity.ok(requestService.approveRequest(id));
     }
 
     @PostMapping("/deActive/{id}")
     public ResponseEntity<?> deActiveUser(@PathVariable int id){
-        userService.deActiveUser(id);
-        return ResponseEntity.ok("Update user success");
+        return ResponseEntity.ok(userService.deActiveUser(id));
     }
 
 }

@@ -18,7 +18,7 @@ public interface RequestService {
 
     void sendRequest(int id);
 
-    void approveRequest(int requestId);
+    String approveRequest(int requestId);
 
     void rejectRequest(int requestId);
 

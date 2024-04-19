@@ -13,6 +13,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.AccessDeniedException;
+
 @RestController
 @RequestMapping("/profile")
 @RequiredArgsConstructor
@@ -21,24 +23,12 @@ public class ProfileController {
     UserService userService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getUserbyId(@PathVariable int id){
-        //Lấy ra người dùng hiện tại đang authen
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = (User) authentication.getPrincipal();
-        return currentUser.getUserId() == id ?
-                ResponseEntity.ok(userService.getUserById(id)) :
-                ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
+    public ResponseEntity<?> getUserbyId(@PathVariable int id) throws AccessDeniedException {
+        return ResponseEntity.ok(userService.getUserById(id));
+
     }
     @PostMapping("/update/{id}")
     public ResponseEntity<?> updateUserbyId(@PathVariable int id,@RequestBody AuthRequest authRequest){
-        //Lấy ra người dùng hiện tại đang authen
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = (User) authentication.getPrincipal();
-        if (currentUser.getUserId() != id) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
-        }
-        userService.updateUserbyId(id,authRequest);
-
-        return ResponseEntity.ok("Update success");
+        return ResponseEntity.ok(userService.updateUserbyId(id,authRequest));
     }
 }

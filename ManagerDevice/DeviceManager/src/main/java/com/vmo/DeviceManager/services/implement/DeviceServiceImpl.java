@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -39,16 +40,39 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     @Override
-    public int addDevice(DeviceDto deviceDto) {
-        Category category = categoryRepository.findById(deviceDto.getCategory()).orElseThrow(() -> new RuntimeException("Category does not exits"));
+    public String addDevice(DeviceDto deviceDto) {
+        // Kiểm tra category tồn tại hay không
+        Category category = categoryRepository.findById(deviceDto.getCategory())
+                .orElseThrow(() -> new RuntimeException("Category does not exits"));
+
+        // Kiểm tra các trường dữ liệu đầu vào
+        String deviceName = deviceDto.getDeviceName();
+        if (deviceName == null || deviceName.isBlank()) {
+            throw new RuntimeException("Device name cannot be empty");
+        }
+        if (!deviceName.matches("[a-zA-Z0-9\\s]+")) {
+            throw new RuntimeException("Device name contains invalid characters");
+        }
+
+        double price = deviceDto.getPrice();
+        if (price <= 0) {
+            throw new RuntimeException("Price must be a positive number");
+        }
+
+        String description = deviceDto.getDescription();
+        if (description == null || description.isBlank()) {
+            throw new RuntimeException("Description cannot be empty");
+        }
+
+        // Tạo mới thiết bị và lưu vào cơ sở dữ liệu
         Device device = new Device();
-        device.setDeviceName(deviceDto.getDeviceName().toUpperCase());
+        device.setDeviceName(deviceName.toUpperCase());
         device.setCategory(category);
-        device.setPrice(deviceDto.getPrice());
+        device.setPrice(price);
         device.setStatus(EstatusDevice.Availability);
-        device.setDescription(deviceDto.getDescription());
+        device.setDescription(description);
         deviceRepository.save(device);
-        return device.getDeviceId();
+        return "Device added successfully";
     }
 
     @Override

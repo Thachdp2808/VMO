@@ -25,7 +25,7 @@ public class Device {
     private Category category;
     private EstatusDevice status;
     private String description;
-    private int price;
+    private double price;
     @OneToMany(mappedBy = "device", fetch = FetchType.EAGER)
     @JsonIgnore
     private List<RequestDetail> requestDetails;

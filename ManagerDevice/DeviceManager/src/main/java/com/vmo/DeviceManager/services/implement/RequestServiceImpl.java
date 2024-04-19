@@ -22,10 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -185,27 +182,37 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public void approveRequest(int requestId) {
+    public String approveRequest(int requestId) {
         LocalDate currentDate = LocalDate.now();
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
+
+        // Kiểm tra quyền của người dùng
         if(currentUser.getRole()== Erole.USER){
-            return;
+            return "Access denied";
         }
 
-        List<Device> listDevice = deviceService.getAllDevice();
-
+        // Kiểm tra request có tồn tại trong requestsToSave không
+        Request requestToApprove = null;
         for (Request request : requestsToSave) {
             if (request.getRequestId() == requestId) {
-                request.setStatus(EstatusRequest.Approved);
-                request.setResolveDate(Date.valueOf(currentDate));
-                request.setUserResolve(currentUser.getUserId());
-                requestRepository.save(request);
-                requestsToSave.remove(request);
+                requestToApprove = request;
                 break;
             }
         }
+        if (requestToApprove == null) {
+            return "Request not found";
+        }
+        requestToApprove.setStatus(EstatusRequest.Approved);
+        requestToApprove.setResolveDate(Date.valueOf(currentDate));
+        requestToApprove.setUserResolve(currentUser.getUserId());
+        requestRepository.save(requestToApprove);
+        requestsToSave.remove(requestToApprove);
 
+        // Lấy danh sách tất cả các thiết bị
+        List<Device> listDevice = deviceRepository.findAll();
+
+        // Cập nhật trạng thái của các thiết bị liên quan
         for (RequestDetail requestDetail : requestDetailsToSave) {
             if (requestDetail.getRequest().getRequestId() == requestId) {
                 for(Device device: listDevice){
@@ -220,6 +227,7 @@ public class RequestServiceImpl implements RequestService {
         // Gỡ bỏ các requestDetail đã lưu khỏi danh sách requestDetailsToSave
         requestDetailsToSave.removeIf(requestDetail -> requestDetail.getRequest().getRequestId() == requestId);
 
+        return "Request approved successfully";
     }
 
     @Override
