@@ -1,5 +1,6 @@
 package com.vmo.DeviceManager.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,6 +19,17 @@ public class ImageDevice {
     private String imageLink;
     @ManyToOne
     @JoinColumn(nullable = false, name = "device_id")
+    @JsonIgnore
     private Device imageDevice;
     private String name;
+
+    @Override
+    public String toString() {
+        return "ImageDevice{" +
+                "imageid=" + imageid +
+                ", imageLink='" + imageLink + '\'' +
+                ", imageDevice=" + imageDevice.getDeviceId() +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }
