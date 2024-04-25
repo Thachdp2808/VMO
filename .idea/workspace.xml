@@ -1,15 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="85febff0-6721-4e56-8df9-c14f36a9bf1b" name="Changes" comment="" />
+    <list default="true" id="85febff0-6721-4e56-8df9-c14f36a9bf1b" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/ManagerDevice/DeviceManager/src/test/java/com/vmo/DeviceManager/services/AuthenticationServiceTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ManagerDevice/DeviceManager/src/test/java/com/vmo/DeviceManager/services/DepartmentServiceTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ManagerDevice/DeviceManager/src/test/java/com/vmo/DeviceManager/services/DeviceServiceTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ManagerDevice/DeviceManager/src/test/java/com/vmo/DeviceManager/services/JwtServiceTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ManagerDevice/DeviceManager/src/test/java/com/vmo/DeviceManager/services/RequestServiceTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ManagerDevice/DeviceManager/src/test/java/com/vmo/DeviceManager/services/StorageServiceTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ManagerDevice/DeviceManager/src/test/java/com/vmo/DeviceManager/services/UserDetailServiceTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ManagerDevice/DeviceManager/src/test/java/com/vmo/DeviceManager/services/UserServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ManagerDevice/DeviceManager/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/ManagerDevice/DeviceManager/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ManagerDevice/DeviceManager/src/main/java/com/vmo/DeviceManager/controllers/AdminController.java" beforeDir="false" afterPath="$PROJECT_DIR$/ManagerDevice/DeviceManager/src/main/java/com/vmo/DeviceManager/controllers/AdminController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ManagerDevice/DeviceManager/src/main/java/com/vmo/DeviceManager/controllers/AnyRollController.java" beforeDir="false" afterPath="$PROJECT_DIR$/ManagerDevice/DeviceManager/src/main/java/com/vmo/DeviceManager/controllers/AnyRollController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ManagerDevice/DeviceManager/src/main/java/com/vmo/DeviceManager/controllers/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/ManagerDevice/DeviceManager/src/main/java/com/vmo/DeviceManager/controllers/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ManagerDevice/DeviceManager/src/main/java/com/vmo/DeviceManager/models/Category.java" beforeDir="false" afterPath="$PROJECT_DIR$/ManagerDevice/DeviceManager/src/main/java/com/vmo/DeviceManager/models/Category.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ManagerDevice/DeviceManager/src/main/java/com/vmo/DeviceManager/models/Department.java" beforeDir="false" afterPath="$PROJECT_DIR$/ManagerDevice/DeviceManager/src/main/java/com/vmo/DeviceManager/models/Department.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ManagerDevice/DeviceManager/src/main/java/com/vmo/DeviceManager/models/Device.java" beforeDir="false" afterPath="$PROJECT_DIR$/ManagerDevice/DeviceManager/src/main/java/com/vmo/DeviceManager/models/Device.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ManagerDevice/DeviceManager/src/main/java/com/vmo/DeviceManager/models/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/ManagerDevice/DeviceManager/src/main/java/com/vmo/DeviceManager/models/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ManagerDevice/DeviceManager/src/main/java/com/vmo/DeviceManager/services/DeviceService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ManagerDevice/DeviceManager/src/main/java/com/vmo/DeviceManager/services/DeviceService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ManagerDevice/DeviceManager/src/main/java/com/vmo/DeviceManager/services/RequestService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ManagerDevice/DeviceManager/src/main/java/com/vmo/DeviceManager/services/RequestService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ManagerDevice/DeviceManager/src/main/java/com/vmo/DeviceManager/services/implement/DepartmentServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/ManagerDevice/DeviceManager/src/main/java/com/vmo/DeviceManager/services/implement/DepartmentServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ManagerDevice/DeviceManager/src/main/java/com/vmo/DeviceManager/services/implement/DeviceServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/ManagerDevice/DeviceManager/src/main/java/com/vmo/DeviceManager/services/implement/DeviceServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ManagerDevice/DeviceManager/src/main/java/com/vmo/DeviceManager/services/implement/RequestServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/ManagerDevice/DeviceManager/src/main/java/com/vmo/DeviceManager/services/implement/RequestServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ManagerDevice/DeviceManager/src/main/java/com/vmo/DeviceManager/services/implement/UserServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/ManagerDevice/DeviceManager/src/main/java/com/vmo/DeviceManager/services/implement/UserServiceImpl.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 0
-}]]></component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 0
+}</component>
   <component name="ProjectId" id="2eWyH3jVDL5GeXpIgqbnOdg1Usd" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -20,6 +49,11 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "main",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -32,6 +66,7 @@
       <option name="presentableId" value="Default" />
       <updated>1712034538192</updated>
       <workItem from="1712034539426" duration="1000" />
+      <workItem from="1714010508732" duration="598000" />
     </task>
     <servers />
   </component>

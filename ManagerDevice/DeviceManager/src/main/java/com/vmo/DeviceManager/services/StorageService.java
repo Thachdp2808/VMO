@@ -47,7 +47,7 @@ public class StorageService {
 
     public String uploadFile(MultipartFile file, String type, int id) {
         File fileObj = convertMultiPartFileToFile(file);
-        String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+        String fileName =   file.getOriginalFilename();
         amazonS3.putObject(new PutObjectRequest(bucketName, fileName, fileObj));
         fileObj.delete();
 
@@ -102,7 +102,7 @@ public class StorageService {
     }
 
 
-    private File convertMultiPartFileToFile(MultipartFile file) {
+    File convertMultiPartFileToFile(MultipartFile file) {
         File convertedFile = new File(file.getOriginalFilename());
         try (FileOutputStream fos = new FileOutputStream(convertedFile)) {
             fos.write(file.getBytes());

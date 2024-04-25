@@ -9,14 +9,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 public interface DeviceService {
-    List<Device> getDeviceByStatus(int status);
-
     String addDevice(DeviceDto deviceDto);
-
-    void updateDevice(int id, DeviceDto deviceDto);
-
-    void deleteDevice(int id);
-
+    String updateDevice(int id, DeviceDto deviceDto);
     List<Device> getAllDevice();
     List<Device> getMyDevice();
     Device getDeviceById(int id);

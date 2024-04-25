@@ -31,12 +31,9 @@ import java.util.Random;
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
-    @Autowired
-    UserRepository userRepository;
-    @Autowired
-    private OtpUtil otpUtil;
-    @Autowired
-    private EmailUtil emailUtil;
+    private final UserRepository userRepository;
+    private final OtpUtil otpUtil;
+    private final EmailUtil emailUtil;
 
     private final PasswordEncoder passwordEncoder;
 

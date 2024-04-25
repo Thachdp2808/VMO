@@ -14,13 +14,13 @@ public interface RequestService {
 
     List<Request> getRequestByCreatedUser();
 
-    int addRequest(RequestDto requestDto);
+    String addRequest(RequestDto requestDto);
 
-    void sendRequest(int id);
+    String sendRequest(int id);
 
     String approveRequest(int requestId);
 
-    void rejectRequest(int requestId);
+    String rejectRequest(int requestId);
 
     boolean deleteRequest(int requestId);
 }

@@ -1,6 +1,7 @@
 package com.vmo.DeviceManager.services.implement;
 
 import com.vmo.DeviceManager.jwt.AuthRequest;
+import com.vmo.DeviceManager.models.Device;
 import com.vmo.DeviceManager.models.dto.UserDto;
 import com.vmo.DeviceManager.models.User;
 import com.vmo.DeviceManager.models.enumEntity.EstatusUser;
@@ -8,12 +9,12 @@ import com.vmo.DeviceManager.models.mapper.UserMapper;
 import com.vmo.DeviceManager.repositories.UserRepository;
 import com.vmo.DeviceManager.services.DepartmentService;
 import com.vmo.DeviceManager.services.UserService;
-import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,15 +24,17 @@ import org.springframework.transaction.annotation.Transactional;
 import java.nio.file.AccessDeniedException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final DepartmentService departmentService;
 
-    public UserServiceImpl(PasswordEncoder passwordEncoder, DepartmentService departmentService) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, DepartmentService departmentService) {
+        this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.departmentService = departmentService;
     }
@@ -56,15 +59,36 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> searchUser(String keyword) {
-        List<User> listUser = userRepository.findAll();
-        List<UserDto> result = new ArrayList<>();
-        for (User user : listUser){
-            if(user.getFirstName().contains(keyword) || user.getLastName().contains(keyword)){
-                result.add(UserMapper.toUserDto(user));
-            }
+    public Page<User> pageAndSearch(String keyword, Integer pageNo, Integer pageSize) {
+        if (pageNo == null || pageNo <= 0) {
+            throw new IllegalArgumentException("Invalid page number");
         }
-        return result;
+        if (pageSize == null || pageSize <= 0) {
+            throw new IllegalArgumentException("Invalid page size");
+        }
+
+        List<User> listUser = userRepository.findAll();
+        int size = 0;
+        List<User> list = searchByKeyword(listUser,keyword );
+        size = list.size();
+
+
+        // Phân trang và trả về kết quả
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageSize), size);
+        list = list.subList(start, end);
+        return new PageImpl<>(list, pageable, size);
+    }
+    public List<User> searchByKeyword(List<User> listUser, String keyword) {
+        Predicate<User> searchPredicate = user ->
+                user.getFirstName().toUpperCase().contains(keyword.toUpperCase()) ||
+                        user.getLastName().toUpperCase().contains(keyword.toUpperCase()) ||
+                        user.getEmail().toUpperCase().contains(keyword.toUpperCase());
+
+        return listUser.stream()
+                .filter(searchPredicate)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -77,7 +101,7 @@ public class UserServiceImpl implements UserService {
         }
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
-        authRequest.setPassword(passwordEncoder.encode(authRequest.getPassword()));
+        existingUser.setPassword(passwordEncoder.encode(authRequest.getPassword()));
         existingUser.setDepartment(departmentService.findById(authRequest.getDepartmentId()));
         try {
             // Update existingUser with updatedUser's properties
@@ -85,6 +109,7 @@ public class UserServiceImpl implements UserService {
         } catch (Exception e){
             throw new RuntimeException("Can not update your user please try again");
         }
+
         userRepository.save(existingUser);
         return "Update successful";
     }

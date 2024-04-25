@@ -1,8 +1,10 @@
 package com.vmo.DeviceManager.services;
 
 import com.vmo.DeviceManager.jwt.AuthRequest;
+import com.vmo.DeviceManager.models.Device;
 import com.vmo.DeviceManager.models.User;
 import com.vmo.DeviceManager.models.dto.UserDto;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
@@ -16,7 +18,7 @@ public interface UserService  {
 
      String deActiveUser(int userId);
 
-     List<UserDto> searchUser(String keyword);
+     Page<User> pageAndSearch( String keyword, Integer pageNo, Integer pageSize);
 
      String updateUserbyId(int id, AuthRequest authRequest);
 

@@ -30,26 +30,17 @@ public class AnyRollController {
                                        @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
                                        @RequestParam(name = "pageSize", defaultValue = "4") Integer pageSize){
         List<Device> devices = deviceService.getAllDevice();
-        Page<Device> listDevice = deviceService.pageAndSearch(devices, keyword, type, pageNo, pageSize);
-        return listDevice.isEmpty() ? ResponseEntity.ok("Device does not exist") : ResponseEntity.ok(listDevice.getContent());
+        return ResponseEntity.ok(deviceService.pageAndSearch(devices, keyword, type, pageNo, pageSize));
     }
 
     @PostMapping("/addRequest")
     public ResponseEntity<?> addRequest(@RequestBody RequestDto requestDto){
-        int id = requestService.addRequest(requestDto);
-        return ResponseEntity.ok("Add request success" + id);
+        return ResponseEntity.ok(requestService.addRequest(requestDto));
     }
 
     @PostMapping("/sendRequest/{id}")
     public ResponseEntity<?> sendRequest(@PathVariable int id){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = (User) authentication.getPrincipal();
-        Request request = requestService.findByRequestId(id);
-        if(currentUser.getUserId() == request.getUserCreated().getUserId()){
-            requestService.sendRequest(id);
-            return ResponseEntity.ok("Send success");
-        }
-        return ResponseEntity.ok("Send Fail");
+        return ResponseEntity.ok(requestService.sendRequest(id));
     }
     @PostMapping("/deleteRequest/{id}")
     public ResponseEntity<?> viewMyRequest(@PathVariable int id){

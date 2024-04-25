@@ -36,4 +36,13 @@ public class RequestDetailServiceImpl implements RequestDetailService {
             requestDetailRepository.save(requestDetail);
         }
     }
+
+    @Override
+    public String getDurationDay(int deviceid) {
+        int time = requestDetailRepository.getDurationDay(deviceid);
+        if(time == 0 ){
+            return "Device does not borrow " + deviceid;
+        }
+        return "Duration day of device: " + time + " day";
+    }
 }

@@ -35,18 +35,15 @@ public class UserController {
                                        @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
                                        @RequestParam(name = "pageSize", defaultValue = "4") Integer pageSize){
         List<Device> devices = deviceService.getAllDevice();
-        Page<Device> listDevice = deviceService.pageAndSearch(devices, keyword, type, pageNo, pageSize);
-        return listDevice.isEmpty() ? ResponseEntity.ok("Device does not exist") : ResponseEntity.ok(listDevice.getContent());
+        return ResponseEntity.ok(deviceService.pageAndSearch(devices, keyword, type, pageNo, pageSize));
     }
     @GetMapping("/viewMyDevice")
     public ResponseEntity<?> getMyDevice(){
-        List<Device> devices = deviceService.getMyDevice();
-        return devices.isEmpty() ? ResponseEntity.ok("Device does not exist") : ResponseEntity.ok(devices);
+        return ResponseEntity.ok(deviceService.getMyDevice());
     }
     @GetMapping("/viewRequest")
     public ResponseEntity<?> viewMyRequest(){
-        List<Request> listRequest = requestService.getRequestByCreatedUser();
-        return listRequest.isEmpty() ? ResponseEntity.ok("Request does not exist") : ResponseEntity.ok(listRequest);
+        return ResponseEntity.ok(requestService.getRequestByCreatedUser());
     }
 
 
