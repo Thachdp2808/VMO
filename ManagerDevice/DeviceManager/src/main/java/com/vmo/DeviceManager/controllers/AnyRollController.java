@@ -1,17 +1,14 @@
 package com.vmo.DeviceManager.controllers;
 
 import com.vmo.DeviceManager.models.Device;
-import com.vmo.DeviceManager.models.Request;
-import com.vmo.DeviceManager.models.User;
 import com.vmo.DeviceManager.models.dto.RequestDto;
 import com.vmo.DeviceManager.services.DeviceService;
 import com.vmo.DeviceManager.services.RequestDetailService;
 import com.vmo.DeviceManager.services.RequestService;
+import com.vmo.DeviceManager.services.UserService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,19 +16,27 @@ import java.util.List;
 @RestController
 @RequestMapping("")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
 public class AnyRollController {
     private final DeviceService deviceService;
     private final RequestService requestService;
+    private final UserService userService;
     private final RequestDetailService requestDetailService;
 
     @GetMapping("/device")
     public ResponseEntity<?> getDevice(@RequestParam(name = "keyword", required = false, defaultValue = "") String keyword,
-                                       @RequestParam(name = "type", required = false, defaultValue = "name") String type,
+                                       @RequestParam(name = "type", required = false) List<String> type,
+                                       @RequestParam(name = "category", required = false) List<String> category,
                                        @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
                                        @RequestParam(name = "pageSize", defaultValue = "4") Integer pageSize){
-        List<Device> devices = deviceService.getAllDevice();
-        return ResponseEntity.ok(deviceService.pageAndSearch(devices, keyword, type, pageNo, pageSize));
+        return ResponseEntity.ok(deviceService.pageAndSearch( keyword,category, type, pageNo, pageSize));
     }
+
+    @GetMapping("/category")
+    public ResponseEntity<?> getCategory(){
+        return ResponseEntity.ok(deviceService.getAllCategory());
+    }
+
 
     @PostMapping("/addRequest")
     public ResponseEntity<?> addRequest(@RequestBody RequestDto requestDto){
@@ -44,14 +49,17 @@ public class AnyRollController {
     }
     @PostMapping("/deleteRequest/{id}")
     public ResponseEntity<?> viewMyRequest(@PathVariable int id){
-        boolean check = requestService.deleteRequest(id);
-        System.out.println(check);
-        return check? ResponseEntity.ok("Delete request success") : ResponseEntity.ok("Delete request fail");
+        return ResponseEntity.ok(requestService.deleteRequest(id));
     }
     @PostMapping("/updateRequest/{id}")
     public ResponseEntity<?> updateRequest(@PathVariable int id, @RequestBody RequestDto requestDto){
         requestService.updateRequest(id, requestDto);
         return ResponseEntity.ok("Delete request success");
+    }
+
+    @GetMapping("/logoutAccount")
+    public ResponseEntity<?> logout() {
+        return ResponseEntity.ok(userService.logout());
     }
 
 }

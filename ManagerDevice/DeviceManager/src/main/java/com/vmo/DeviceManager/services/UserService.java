@@ -14,12 +14,15 @@ import java.util.List;
 
 @Service
 public interface UserService  {
-     UserDto getUserById(int id) throws AccessDeniedException;
+     UserDto getUser();
 
      String deActiveUser(int userId);
 
      Page<User> pageAndSearch( String keyword, Integer pageNo, Integer pageSize);
 
-     String updateUserbyId(int id, AuthRequest authRequest);
+     String updateProfile( AuthRequest authRequest);
+
+     String updateUserById(int id, AuthRequest authRequest);
+     String logout();
 
 }

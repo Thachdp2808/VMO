@@ -5,19 +5,27 @@ import com.vmo.DeviceManager.jwt.JwtAuthenticationReponse;
 import com.vmo.DeviceManager.jwt.RefreshTokenRequest;
 import com.vmo.DeviceManager.jwt.SigninAuthen;
 import com.vmo.DeviceManager.models.Department;
+import com.vmo.DeviceManager.models.Device;
 import com.vmo.DeviceManager.models.User;
 import com.vmo.DeviceManager.repositories.DepartmentRepository;
 import com.vmo.DeviceManager.services.AuthenticationService;
+import com.vmo.DeviceManager.services.DeviceService;
+import com.vmo.DeviceManager.services.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("")
 @RequiredArgsConstructor
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
+    private final DeviceService deviceService;
+    private final UserService userService;
 
     @PostMapping("/signup")
     public ResponseEntity<User> signup(@RequestBody AuthRequest authRequest){
@@ -39,10 +47,6 @@ public class AuthenticationController {
         return ResponseEntity.ok(authenticationService.signin(signinAuthen));
     }
 
-    @PostMapping("/refresh")
-    public ResponseEntity<JwtAuthenticationReponse> refresh(@RequestBody RefreshTokenRequest refreshTokenRequest){
-        return ResponseEntity.ok(authenticationService.refreshToken(refreshTokenRequest));
-    }
 
     @PostMapping("/changePassword")
     public ResponseEntity<?> changePassword(@RequestParam String email,

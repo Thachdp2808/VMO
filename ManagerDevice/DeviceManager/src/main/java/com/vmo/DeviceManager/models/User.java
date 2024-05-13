@@ -38,6 +38,8 @@ public class User implements UserDetails {
 
     private String address;
 
+    private String token;
+
     private String password;
     @Column(name = "job_title")
     private String jobTitle;

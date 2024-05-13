@@ -7,6 +7,7 @@ import com.vmo.DeviceManager.models.dto.UserDto;
 import com.vmo.DeviceManager.services.DeviceService;
 import com.vmo.DeviceManager.services.RequestService;
 import com.vmo.DeviceManager.services.UserService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,6 +21,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/user")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
 public class UserController {
     private final DeviceService deviceService;
 
@@ -29,14 +31,7 @@ public class UserController {
     public ResponseEntity<String> sayHello(){
         return ResponseEntity.ok("Hi User");
     }
-    @GetMapping("/viewDevice")
-    public ResponseEntity<?> getDevice(@RequestParam(name = "keyword", required = false, defaultValue = "") String keyword,
-                                       @RequestParam(name = "type", required = false, defaultValue = "name") String type,
-                                       @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
-                                       @RequestParam(name = "pageSize", defaultValue = "4") Integer pageSize){
-        List<Device> devices = deviceService.getAllDevice();
-        return ResponseEntity.ok(deviceService.pageAndSearch(devices, keyword, type, pageNo, pageSize));
-    }
+
     @GetMapping("/viewMyDevice")
     public ResponseEntity<?> getMyDevice(){
         return ResponseEntity.ok(deviceService.getMyDevice());

@@ -89,33 +89,21 @@ public class AuthenticationService {
     }
 
     public JwtAuthenticationReponse signin(SigninAuthen signinAuthen){
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signinAuthen.getEmail(),signinAuthen.getPassword()));
         var user = userRepository.findByEmail(signinAuthen.getEmail()).orElseThrow(() -> new IllegalArgumentException("In valid email or password"));
         if (user.getStatus() == EstatusUser.Deactive) {
             throw new IllegalArgumentException("User account is deactivated");
         }
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signinAuthen.getEmail(),signinAuthen.getPassword()));
         var jwt = jwtService.generateToken(user);
-        var refreshToken = jwtService.generateRefreshToken(new HashMap<>(),user);
         JwtAuthenticationReponse jwtAuthenticationReponse = new JwtAuthenticationReponse();
         jwtAuthenticationReponse.setToken(jwt);
-        jwtAuthenticationReponse.setRefreshToken(refreshToken);
+        user.setToken(jwtAuthenticationReponse.getToken());
+
+        userRepository.save(user);
         return jwtAuthenticationReponse;
     }
 
-    public JwtAuthenticationReponse refreshToken(RefreshTokenRequest refreshTokenRequest){
-        String email = jwtService.extractUsername(refreshTokenRequest.getToken());
-        User user = userRepository.findByEmail(email).orElseThrow();
-        if(jwtService.validateToken(refreshTokenRequest.getToken(),user)){
-            var jwt = jwtService.generateToken(user);
 
-            JwtAuthenticationReponse jwtAuthenticationReponse = new JwtAuthenticationReponse();
-
-            jwtAuthenticationReponse.setToken(jwt);
-            jwtAuthenticationReponse.setRefreshToken(refreshTokenRequest.getToken());
-            return jwtAuthenticationReponse;
-        }
-        return null;
-    }
 
     public JwtAuthenticationReponse changePassword(String email, String password, String otp) {
         User user = userRepository.findByEmail(email)
@@ -126,6 +114,7 @@ public class AuthenticationService {
             user.setPassword(passwordEncoder.encode(password));
             var jwt = jwtService.generateToken(user);
             jwtAuthenticationReponse.setToken(jwt);
+            user.setToken(jwtAuthenticationReponse.getToken());
             userRepository.save(user);
         }
         return jwtAuthenticationReponse;
@@ -145,6 +134,7 @@ public class AuthenticationService {
         JwtAuthenticationReponse jwtAuthenticationReponse = new JwtAuthenticationReponse();
         jwtAuthenticationReponse.setToken(jwt);
         user.setPassword(password);
+        user.setToken(jwtAuthenticationReponse.getToken());
         userRepository.save(user);
         return "New password sent your email... please check account within 1 minute";
     }

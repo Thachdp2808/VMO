@@ -2,6 +2,7 @@ package com.vmo.DeviceManager.controllers;
 
 
 import com.vmo.DeviceManager.services.StorageService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/file")
+@SecurityRequirement(name = "bearerAuth")
 public class StorageController {
     private final StorageService service;
 

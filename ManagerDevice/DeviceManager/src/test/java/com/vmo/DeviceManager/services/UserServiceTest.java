@@ -155,7 +155,7 @@ class UserServiceTest {
         // Tiếp theo là mock phương thức của departmentRepository và userRepository
 
         // When
-        String result = userService.updateUserbyId(7, authRequest);
+        String result = userService.updateProfile( authRequest);
 
         // Then
         assertThat(result).isEqualTo("Update successful");
@@ -187,7 +187,7 @@ class UserServiceTest {
 
         // When/Then
         Throwable exception = assertThrows(EntityNotFoundException.class,
-                () -> userService.updateUserbyId(9, authRequest));
+                () -> userService.updateProfile( authRequest));
 
         // Then
         assertThat(exception).isInstanceOf(EntityNotFoundException.class)
@@ -211,7 +211,7 @@ class UserServiceTest {
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
         // When
-        String result = userService.updateUserbyId(userId, authRequest);
+        String result = userService.updateProfile( authRequest);
 
         // Then
         assertThat(result).isEqualTo("Access denied");

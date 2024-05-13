@@ -67,6 +67,7 @@ public class RequestServiceImpl implements RequestService {
         return allRquests;
     }
 
+
     @Override
     public Request findByRequestId(int id) {
         for(Request request: pendingRequests){
@@ -179,10 +180,13 @@ public class RequestServiceImpl implements RequestService {
     public String sendRequest(int id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
-        Request exitsrequest = requestRepository.findByRequestId(id);
-        if(currentUser.getUserId() != exitsrequest.getUserCreated().getUserId()){
-            return "Access Denied";
+        for(Request exitsrequest :pendingRequests){
+            if(currentUser.getUserId() != exitsrequest.getUserCreated().getUserId()){
+                return "Access Denied";
+            }
         }
+
+
         Optional<Request> optionalRequest = pendingRequests.stream()
                 .filter(request -> request.getRequestId() == id)
                 .findFirst();
@@ -271,7 +275,7 @@ public class RequestServiceImpl implements RequestService {
                 .orElse(null);
     }
 
-    private void updateDeviceStatus(int requestId, EstatusDevice status) {
+    public void updateDeviceStatus(int requestId, EstatusDevice status) {
         List<RequestDetail> requestDetails = requestDetailsToSave.stream()
                 .filter(requestDetail -> requestDetail.getRequest().getRequestId() == requestId)
                 .collect(Collectors.toList());
@@ -287,7 +291,7 @@ public class RequestServiceImpl implements RequestService {
 
 
     @Override
-    public boolean deleteRequest(int requestId) {
+    public String deleteRequest(int requestId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
         pendingRequests.stream()
@@ -298,7 +302,7 @@ public class RequestServiceImpl implements RequestService {
             if (request.getRequestId() == requestId) {
                 pendingRequests.remove(request);
             }else {
-                return false;
+                return "Delete request fail";
             }
         }
 
@@ -308,10 +312,17 @@ public class RequestServiceImpl implements RequestService {
             if (requestDetail.getRequest().getRequestId() == requestId && requestDetail.getRequest().getUserCreated().getUserId() == currentUser.getUserId()) {
                 requestDetailIterator.remove();
             }else{
-                return false;
+                return "Delete request fail";
             }
         }
-        return true;
+        return "Delete request success";
+    }
+
+    public void setPendingRequests(List<Request> pendingRequests) {
+        this.pendingRequests.addAll(pendingRequests);
+    }
+    public void setRequestDetailsToSave(List<RequestDetail> RequestDetailsToSave) {
+        this.requestDetailsToSave.addAll(RequestDetailsToSave);
     }
 
 }

@@ -8,19 +8,17 @@ import com.vmo.DeviceManager.models.enumEntity.EstatusDevice;
 import com.vmo.DeviceManager.repositories.CategoryRepository;
 import com.vmo.DeviceManager.repositories.DeviceRepository;
 import com.vmo.DeviceManager.services.DeviceService;
-import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -134,31 +132,78 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     @Override
-    public Page<Device> pageAndSearch(List<Device> listDevice, String keyword, String type, Integer pageNo, Integer pageSize) {
+    public List<Category> getAllCategory() {
+        return categoryRepository.findAll();
+    }
+
+    @Override
+    public String getDashboard() {
+        int countAvail = 0, countUltil = 0, countMainten = 0;
+        List<Device> devices = deviceRepository.findAll();
+        List<Object[]> categoryDeviceList = deviceRepository.countDeviceByCategory();
+        List<Object[]> typeDeviceList = deviceRepository.countDeviceByType();
+        StringBuilder dashboard = new StringBuilder();
+        String categoryName;
+        Long countCategory ;
+        dashboard.append("====== Category Device ======").append("\n");
+        for (Object[] result : categoryDeviceList) {
+            categoryName = (String) result[0];
+            countCategory = (Long) result[1];
+            dashboard.append("Number of ").append(categoryName).append(" devices: ").append(countCategory).append("\n");
+        }
+
+        String typeName;
+        Long countType ;
+        dashboard.append("====== Type Device ======").append("\n");
+        for (Object[] result : typeDeviceList) {
+            typeName = (String) result[0];
+            countType = (Long) result[1];
+            dashboard.append("Number of ").append(typeName).append(" devices: ").append(countType).append("\n");
+        }
+        dashboard.append("====== Status Device ======").append("\n");
+        if (devices.isEmpty()) {
+            throw new RuntimeException("No devices found");
+        }
+        for(Device device: devices){
+            if(device.getStatus() == EstatusDevice.Availability){
+                countAvail++;
+            }
+            if(device.getStatus() == EstatusDevice.Utilized){
+                countUltil++;
+            }
+            if(device.getStatus() == EstatusDevice.Maintenance){
+                countMainten++;
+            }
+        }
+        dashboard.append("Number of availability devices: ").append(countAvail).append("\n")
+                .append("Number of utilized devices: ").append(countUltil).append("\n")
+                .append("Number of maintenance devices: ").append(countMainten);
+        return dashboard.toString();
+    }
+
+
+    @Override
+    public Page<Device> pageAndSearch(String keyword, List<String> category, List<String> type, Integer pageNo, Integer pageSize) {
+        List<Device> listDevice = getAllDevice();
         if (pageNo == null || pageNo <= 0) {
             throw new IllegalArgumentException("Invalid page number");
         }
         if (pageSize == null || pageSize <= 0) {
             throw new IllegalArgumentException("Invalid page size");
         }
-        List<Device> list = new ArrayList<>();
-        int size = 0;
-        switch (type) {
-            case "name":
-                list = search(listDevice, device -> device.getDeviceName().contains(keyword.toUpperCase()));
-                size = list.size();
-                break;
-            case "category":
-                list = search(listDevice, device -> device.getCategory().getCategoryId() == Integer.parseInt(keyword));
-                size = list.size();
-                break;
-            case "type":
-                list = search(listDevice, device -> device.getCategory().getType().contains(keyword.toUpperCase()));
-                size = list.size();
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid search type");
-        }
+        int size;
+        // Tạo ra Predicate dựa trên keyword, category và type
+        Predicate<Device> predicate = device -> {
+            boolean matchKeyword = keyword == null || keyword.isEmpty() || device.getDeviceName().toLowerCase().contains(keyword.toLowerCase());
+            //Kiểm tra xem categoryId có tồn tại trong category hay không
+            boolean matchCategory = category == null || category.isEmpty() || category.contains(device.getCategory().getCategoryName());
+            boolean matchType = type == null || type.isEmpty() || type.contains(device.getCategory().getType());
+            return matchKeyword && matchCategory && matchType;
+        };
+
+        // Áp dụng Predicate vào danh sách thiết bị
+        List<Device> filteredDevices = search(listDevice, predicate);
+        size = filteredDevices.size();
 
         int totalPages = (int) Math.ceil((double) size / pageSize);
         if (pageNo > totalPages) {
@@ -169,8 +214,8 @@ public class DeviceServiceImpl implements DeviceService {
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageSize), size);
-        list = list.subList(start, end);
-        return new PageImpl<>(list, pageable, size);
+        filteredDevices = filteredDevices.subList(start, end);
+        return new PageImpl<>(filteredDevices, pageable, size);
     }
     private List<Device> search(List<Device> listDevice, Predicate<Device> predicate) {
         return listDevice.stream()

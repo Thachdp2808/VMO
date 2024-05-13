@@ -1,5 +1,7 @@
 package com.vmo.DeviceManager.filter;
 
+import com.vmo.DeviceManager.models.User;
+import com.vmo.DeviceManager.repositories.UserRepository;
 import com.vmo.DeviceManager.services.JwtService;
 import com.vmo.DeviceManager.services.UserDetailService;
 import jakarta.servlet.FilterChain;
@@ -22,6 +24,7 @@ import java.io.IOException;
 public class JwtAuthFilter extends OncePerRequestFilter {
     @Autowired
     private JwtService jwtService;
+    private final UserRepository userRepository;
 
     private final UserDetailService userDetailService;
     @Override
@@ -31,7 +34,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String useremail ;
         if (StringUtils.isEmpty(authHeader) && !org.apache.commons.lang3.StringUtils.startsWith(authHeader,"Bearer ")) {
             filterChain.doFilter(request,response);
-            System.out.println("Token already");
             return;
         }
         token = authHeader.substring(7);
@@ -40,11 +42,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         if (!StringUtils.isEmpty(useremail) && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailService.userDetailsService().loadUserByUsername(useremail);
             if (jwtService.validateToken(token, userDetails)) {
-                System.out.println("Token already");
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 System.out.println(userDetails.getAuthorities());
                 System.out.println(userDetails.getUsername());
-
+                User user = userRepository.findByEmail(userDetails.getUsername())
+                        .orElseThrow(() -> new RuntimeException("User not found with this email: " + userDetails.getUsername()));
+                System.out.print(user.getToken());
+                if(user.getToken()==null || user.getToken().isEmpty() ){
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    return;
+                }
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 System.out.println(authToken.getAuthorities().toString());
                 SecurityContextHolder.getContext().setAuthentication(authToken);

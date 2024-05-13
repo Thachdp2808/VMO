@@ -22,5 +22,5 @@ public interface RequestService {
 
     String rejectRequest(int requestId);
 
-    boolean deleteRequest(int requestId);
+    String deleteRequest(int requestId);
 }

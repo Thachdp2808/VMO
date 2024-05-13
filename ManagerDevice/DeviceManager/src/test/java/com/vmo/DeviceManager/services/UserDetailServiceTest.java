@@ -1,9 +1,11 @@
 package com.vmo.DeviceManager.services;
 
+import com.vmo.DeviceManager.config.SecurityConfig;
 import com.vmo.DeviceManager.models.User;
 import com.vmo.DeviceManager.repositories.DepartmentRepository;
 import com.vmo.DeviceManager.repositories.UserRepository;
 import com.vmo.DeviceManager.services.implement.DepartmentServiceImpl;
+import com.vmo.DeviceManager.services.implement.UserDetailServiceImpl;
 import com.vmo.DeviceManager.services.implement.UserServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -26,26 +28,27 @@ class UserDetailServiceTest {
     @Mock
     private UserRepository userRepository;
     @Mock
-    private PasswordEncoder passwordEncoder;
-    @Mock
-    private DepartmentRepository departmentRepository;
-    @InjectMocks
-    private UserServiceImpl userService;
-    @Mock
-    private Authentication authentication;
+    private UserDetailServiceImpl userDetailsService;
     @InjectMocks
     private DepartmentServiceImpl departmentService;
-//    @Test
-//    void userDetailsService_ReturnsCorrectUserDetailsService() {
+    @Test
+    void loadUserByUsername_UserFound_ReturnsValidUserDetails() {
 //        // Given
-//        UserServiceImpl userService = new UserServiceImpl(userRepository, passwordEncoder, departmentService);
+//
+//        User user = new User();
+//        user.setEmail("test@example.com");
+//        when(userRepository.findByEmail("test@example.com")).thenReturn(java.util.Optional.of(user));
+//
+//        SecurityConfig securityConfig = new SecurityConfig(userDetailsService);
+//        UserDetailsService userDetailsService = securityConfig.userDetailsService();
 //
 //        // When
-//        UserDetailsService userDetailsService = userService.userDetailsService();
+//        UserDetails userDetails = userDetailsService.loadUserByUsername("test@example.com");
 //
 //        // Then
-//        assertThat(userDetailsService).isNotNull();
-//    }
+//        assertNotNull(userDetails);
+//        assertEquals("test@example.com", userDetails.getUsername());
+    }
 //
 //    @Test
 //    void loadUserByUsername_UserExists_ReturnsUserDetails() {

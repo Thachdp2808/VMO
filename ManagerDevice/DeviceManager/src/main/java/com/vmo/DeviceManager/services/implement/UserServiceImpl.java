@@ -4,6 +4,7 @@ import com.vmo.DeviceManager.jwt.AuthRequest;
 import com.vmo.DeviceManager.models.Device;
 import com.vmo.DeviceManager.models.dto.UserDto;
 import com.vmo.DeviceManager.models.User;
+import com.vmo.DeviceManager.models.enumEntity.Erole;
 import com.vmo.DeviceManager.models.enumEntity.EstatusUser;
 import com.vmo.DeviceManager.models.mapper.UserMapper;
 import com.vmo.DeviceManager.repositories.UserRepository;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -40,13 +42,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto getUserById(int id) throws AccessDeniedException {
+    public UserDto getUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
-        if (currentUser.getUserId() != id) {
-            throw new AccessDeniedException("Access denied");
-        }
-        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("Account does not exits"));
+        User user = userRepository.findById(currentUser.getUserId()).orElseThrow(() -> new RuntimeException("Account does not exits"));
         return UserMapper.toUserDto(user) ;
     }
 
@@ -93,15 +92,47 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public String updateUserbyId(int id, AuthRequest authRequest) {
+    public String updateProfile( AuthRequest authRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
-        if (currentUser.getUserId() != id) {
-            return "Access denied";
+        User existingUser = userRepository.findById(currentUser.getUserId())
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + currentUser.getUserId()));
+        authRequest.setPassword(passwordEncoder.encode(authRequest.getPassword()));
+        existingUser.setDepartment(departmentService.findById(authRequest.getDepartmentId()));
+        try {
+            // Update existingUser with updatedUser's properties
+            BeanUtils.copyProperties(authRequest, existingUser);
+        } catch (Exception e){
+            throw new RuntimeException("Can not update your user please try again");
+        }
+
+        userRepository.save(existingUser);
+        return "Update successful";
+    }
+    @Override
+    public String logout() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+        currentUser.setToken("");
+        userRepository.save(currentUser);
+        return "Logout successfully";
+    }
+    @Override
+    public String updateUserById(int id, AuthRequest authRequest) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+        if(currentUser.getRole() == Erole.USER){
+            return "Permission denied";
         }
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
-        existingUser.setPassword(passwordEncoder.encode(authRequest.getPassword()));
+        if(authRequest.getPassword() == null){
+            authRequest.setPassword(existingUser.getPassword());
+        }
+        if(authRequest.getEmail() == null){
+            authRequest.setEmail(existingUser.getEmail());
+        }
+        authRequest.setPassword(passwordEncoder.encode(authRequest.getPassword()));
         existingUser.setDepartment(departmentService.findById(authRequest.getDepartmentId()));
         try {
             // Update existingUser with updatedUser's properties
