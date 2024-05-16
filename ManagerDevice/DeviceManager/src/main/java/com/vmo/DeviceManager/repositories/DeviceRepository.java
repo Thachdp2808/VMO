@@ -10,11 +10,10 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 @Repository
 public interface DeviceRepository extends JpaRepository<Device,Integer> {
-    List<Device> getDeviceByStatus(EstatusDevice status);
     @Query("SELECT d FROM Device d " +
             "INNER JOIN RequestDetail rd ON rd.device = d " +
             "INNER JOIN rd.request r " +
-            "WHERE r.userCreated.userId = ?1 AND r.status = 2")
+            "WHERE r.userCreated.userId = ?1 AND r.status = 2 AND rd.endTime >= CURRENT_TIMESTAMP")
     List<Device> getMyDevices(int userId);
 
     @Query(value = "SELECT c.category_name, COUNT(d.device_id) AS total_devices\n" +

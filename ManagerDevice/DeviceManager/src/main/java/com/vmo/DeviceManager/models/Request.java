@@ -14,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@Builder
 
 @Entity
 @Table(name = "requests")
@@ -32,7 +33,7 @@ public class Request {
     private User userCreated;
     private Integer userResolve;
     @OneToMany(mappedBy = "request", fetch = FetchType.EAGER)
-    @JsonIgnore
+
     private List<RequestDetail> requestDetails;
     @Column(nullable = false)
     private String reason;

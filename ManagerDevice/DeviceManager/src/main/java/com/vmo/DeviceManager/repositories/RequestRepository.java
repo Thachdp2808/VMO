@@ -17,7 +17,6 @@ public interface RequestRepository extends JpaRepository<Request, Integer> {
 
     List<Request> findByUserCreated(User userCreated);
 
-    Request findByRequestId(int id);
     @Query("SELECT Max(requestId) FROM Request ")
     int getLastId();
 

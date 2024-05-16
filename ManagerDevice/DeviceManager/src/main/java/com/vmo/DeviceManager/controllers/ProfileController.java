@@ -25,7 +25,7 @@ public class ProfileController {
     UserService userService;
 
     @GetMapping("")
-    public ResponseEntity<?> getUserbyId()  {
+    public ResponseEntity<?> getUser()  {
         return ResponseEntity.ok(userService.getUser());
 
     }

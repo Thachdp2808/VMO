@@ -16,6 +16,7 @@ public class UserMapper {
         tmp.setEmail(user.getEmail());
         tmp.setAddress(user.getAddress());
         tmp.setJobTitle(user.getJobTitle());
+        tmp.setStatus(user.getStatus());
         tmp.setRole(user.getRole());
         tmp.setDepartment(user.getDepartment());
         return tmp;

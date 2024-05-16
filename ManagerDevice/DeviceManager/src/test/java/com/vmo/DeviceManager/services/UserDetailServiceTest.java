@@ -8,8 +8,10 @@ import com.vmo.DeviceManager.services.implement.DepartmentServiceImpl;
 import com.vmo.DeviceManager.services.implement.UserDetailServiceImpl;
 import com.vmo.DeviceManager.services.implement.UserServiceImpl;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -21,8 +23,9 @@ import java.util.Optional;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class UserDetailServiceTest {
 
     @Mock
@@ -31,61 +34,41 @@ class UserDetailServiceTest {
     private UserDetailServiceImpl userDetailsService;
     @InjectMocks
     private DepartmentServiceImpl departmentService;
+
+    @InjectMocks
+    private UserDetailServiceImpl userDetailService;
+
+
     @Test
-    void loadUserByUsername_UserFound_ReturnsValidUserDetails() {
-//        // Given
-//
-//        User user = new User();
-//        user.setEmail("test@example.com");
-//        when(userRepository.findByEmail("test@example.com")).thenReturn(java.util.Optional.of(user));
-//
-//        SecurityConfig securityConfig = new SecurityConfig(userDetailsService);
-//        UserDetailsService userDetailsService = securityConfig.userDetailsService();
-//
-//        // When
-//        UserDetails userDetails = userDetailsService.loadUserByUsername("test@example.com");
-//
-//        // Then
-//        assertNotNull(userDetails);
-//        assertEquals("test@example.com", userDetails.getUsername());
+    void loadUserByUsername_UserFound_ReturnsUserDetails() {
+        // Arrange
+        String email = "test@example.com";
+        User user = new User();
+        user.setEmail(email);
+        user.setPassword("password");
+
+        when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+
+        // Act
+        UserDetails userDetails = userDetailService.userDetailsService().loadUserByUsername(email);
+
+        // Assert
+        assertNotNull(userDetails);
+        assertEquals(email, userDetails.getUsername());
+        assertEquals(user.getPassword(), userDetails.getPassword());
+        verify(userRepository, times(1)).findByEmail(email);
     }
-//
-//    @Test
-//    void loadUserByUsername_UserExists_ReturnsUserDetails() {
-//        // Given
-//        String username = "test@example.com";
-//        User user = User.builder()
-//                .userId(1)
-//                .email(username)
-//                .password("password")
-//                .build();
-//        when(userRepository.findByEmail(username)).thenReturn(Optional.ofNullable(user));
-//
-//        UserServiceImpl userService = new UserServiceImpl(userRepository, passwordEncoder, departmentService);
-//        UserDetailsService userDetailsService = userService.userDetailsService();
-//
-//        // When
-//        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-//
-//        // Then
-//        assertThat(userDetails).isNotNull();
-//        assertThat(userDetails.getUsername()).isEqualTo(username);
-//        assertThat(userDetails.getPassword()).isEqualTo(user.getPassword());
-//    }
-//
-//    @Test
-//    void loadUserByUsername_UserNotExists_ThrowsUsernameNotFoundException() {
-//        // Given
-//        String username = "nonexistent@example.com";
-//        when(userRepository.findByEmail(username)).thenReturn(Optional.empty());
-//
-//        UserServiceImpl userService = new UserServiceImpl(userRepository, passwordEncoder, departmentService);
-//        UserDetailsService userDetailsService = userService.userDetailsService();
-//
-//        // When, Then
-//        assertThatThrownBy(() -> userDetailsService.loadUserByUsername(username))
-//                .isInstanceOf(UsernameNotFoundException.class)
-//                .hasMessageContaining("User not found");
-//    }
+
+    @Test
+    void loadUserByUsername_UserNotFound_ThrowsUsernameNotFoundException() {
+        // Arrange
+        String email = "nonexistent@example.com";
+
+        when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(UsernameNotFoundException.class, () -> userDetailService.userDetailsService().loadUserByUsername(email));
+        verify(userRepository, times(1)).findByEmail(email);
+    }
 
 }

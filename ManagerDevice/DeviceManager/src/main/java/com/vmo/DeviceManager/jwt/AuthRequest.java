@@ -14,4 +14,22 @@ public class AuthRequest {
     private String firstName;
     private String lastName;
     private int departmentId;
+    public void validateAndTrim() {
+        if (username != null) {
+            username = username.trim();
+        }
+        if (password != null) {
+            password = password.trim();
+        }
+        if (email != null) {
+            email = email.trim();
+        }
+        if (firstName != null) {
+            firstName = firstName.trim();
+        }
+        if (lastName != null) {
+            lastName = lastName.trim();
+        }
+        // Không cần trim departmentId vì nó là một số nguyên
+    }
 }

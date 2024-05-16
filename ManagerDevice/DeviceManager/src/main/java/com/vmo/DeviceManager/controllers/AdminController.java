@@ -26,14 +26,13 @@ public class AdminController {
     private final UserService userService;
     private final RequestService requestService;
     private final RequestDetailService requestDetailService;
-    @Autowired
-    private  DeviceService deviceService;
+    private final DeviceService deviceService;
 
     @GetMapping
     public ResponseEntity<String> sayHello(){
         return ResponseEntity.ok("Hi Admin");
     }
-    @GetMapping("/search")
+    @GetMapping("/searchUser")
     public ResponseEntity<?> searchUser(@RequestParam(name = "keyword", required = false, defaultValue = "") String keyword,
                                         @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
                                         @RequestParam(name = "pageSize", defaultValue = "4") Integer pageSize){
@@ -71,6 +70,11 @@ public class AdminController {
     @PostMapping("/reject/{id}")
     public ResponseEntity<?> rejectRequest(@PathVariable int id){
         return ResponseEntity.ok(requestService.rejectRequest(id));
+    }
+
+    @PostMapping("/returnDevice/{id}")
+    public ResponseEntity<?> returnDevice(@PathVariable int id){
+        return ResponseEntity.ok(requestService.returnDevice(id));
     }
 
     @PostMapping("/deActive/{id}")

@@ -36,10 +36,7 @@ public class UserController {
     public ResponseEntity<?> getMyDevice(){
         return ResponseEntity.ok(deviceService.getMyDevice());
     }
-    @GetMapping("/viewRequest")
-    public ResponseEntity<?> viewMyRequest(){
-        return ResponseEntity.ok(requestService.getRequestByCreatedUser());
-    }
+
 
 
 }

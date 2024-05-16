@@ -80,7 +80,7 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     @Transactional
-    public void updateRequest(int requestId, RequestDto requestDto) {
+    public String updateRequest(int requestId, RequestDto requestDto) {
         Request exitRequest = new Request();
         for(Request request: pendingRequests){
             if(request.getRequestId() == requestId){
@@ -98,6 +98,7 @@ public class RequestServiceImpl implements RequestService {
         if (devices.isEmpty()) {
             throw new IllegalArgumentException("No available devices in the list");
         }
+        requestDto.validateTime();
         pendingRequests.add(exitRequest);
         RequestDetail exitsRequestDetail= new RequestDetail() ;
         for(RequestDetail pendingRequest: pendingRequestDetails){
@@ -105,12 +106,13 @@ public class RequestServiceImpl implements RequestService {
                 exitsRequestDetail = pendingRequest;
                 for(Device device: devices){
                     exitsRequestDetail.setDevice(device);
-                    exitsRequestDetail.setStartTime(requestDto.getStart());
-                    exitsRequestDetail.setEndTime(requestDto.getEnd());
+                    exitsRequestDetail.setStartTime(Date.valueOf(requestDto.getStart()));
+                    exitsRequestDetail.setEndTime(Date.valueOf(requestDto.getEnd()));
                 }
             }
 
         }
+        return "Update request success";
     }
 
     @Override
@@ -118,6 +120,11 @@ public class RequestServiceImpl implements RequestService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
         List<Request> list =  requestRepository.findByUserCreated(currentUser);
+        for(Request pending: pendingRequests){
+            if(pending.getUserCreated().getUserId() == currentUser.getUserId()){
+                list.addAll(pendingRequests);
+            }
+        }
         if(list.isEmpty()){
             throw new RuntimeException("No requests found");
         }
@@ -127,11 +134,9 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public String addRequest(RequestDto requestDto) {
-        try {
             Request request = new Request();
             synchronized (lock) {
                 if (lastInsertedRequestId == 0L) {
-                    // Nếu không có yêu cầu nào trong cơ sở dữ liệu, lấy ID của yêu cầu cuối cùng từ cơ sở dữ liệu
                     lastInsertedRequestId = requestRepository.getLastId();
                 }
 
@@ -158,21 +163,19 @@ public class RequestServiceImpl implements RequestService {
                 throw new IllegalArgumentException("No available devices in the list");
             }
 
+            requestDto.validateTime();
             pendingRequests.add(request);
             for(Device device: devices){
                 RequestDetail requestDetail = new RequestDetail();
                 requestDetail.setRequest(request);
                 requestDetail.setDevice(device);
-                requestDetail.setStartTime(requestDto.getStart());
-                requestDetail.setEndTime(requestDto.getEnd());
+                requestDetail.setStartTime(Date.valueOf(requestDto.getStart()));
+                requestDetail.setEndTime(Date.valueOf(requestDto.getEnd()));
                 pendingRequestDetails.add(requestDetail);
             }
 
-            return "Save request successful";
-        } catch (Exception e) {
-            // Xử lý và ghi log cho lỗi
-            return "An error occurred while processing the request. Please try again later.";
-        }
+            return "Save request successful " + lastInsertedRequestId;
+
     }
 
 
@@ -276,7 +279,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     public void updateDeviceStatus(int requestId, EstatusDevice status) {
-        List<RequestDetail> requestDetails = requestDetailsToSave.stream()
+        List<RequestDetail> requestDetails = requestDetailRepository.findAll().stream()
                 .filter(requestDetail -> requestDetail.getRequest().getRequestId() == requestId)
                 .collect(Collectors.toList());
 
@@ -318,8 +321,21 @@ public class RequestServiceImpl implements RequestService {
         return "Delete request success";
     }
 
+    @Override
+    public String returnDevice(int id) {
+        List<RequestDetail> exitsRequestDetail = requestDetailRepository.findByRequest_RequestId(id);
+        for(RequestDetail list : exitsRequestDetail){
+            list.setEndTime(Date.valueOf(LocalDate.now()));
+        }
+        updateDeviceStatus(id, EstatusDevice.Availability);
+        return "Return device successfully";
+    }
+
     public void setPendingRequests(List<Request> pendingRequests) {
         this.pendingRequests.addAll(pendingRequests);
+    }
+    public void setRequestsToSave(List<Request> requestsToSave) {
+        this.requestsToSave.addAll(requestsToSave);
     }
     public void setRequestDetailsToSave(List<RequestDetail> RequestDetailsToSave) {
         this.requestDetailsToSave.addAll(RequestDetailsToSave);

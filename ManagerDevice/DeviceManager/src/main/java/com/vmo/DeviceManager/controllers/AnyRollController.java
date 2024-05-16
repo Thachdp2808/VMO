@@ -21,7 +21,6 @@ public class AnyRollController {
     private final DeviceService deviceService;
     private final RequestService requestService;
     private final UserService userService;
-    private final RequestDetailService requestDetailService;
 
     @GetMapping("/device")
     public ResponseEntity<?> getDevice(@RequestParam(name = "keyword", required = false, defaultValue = "") String keyword,
@@ -47,19 +46,25 @@ public class AnyRollController {
     public ResponseEntity<?> sendRequest(@PathVariable int id){
         return ResponseEntity.ok(requestService.sendRequest(id));
     }
+
     @PostMapping("/deleteRequest/{id}")
-    public ResponseEntity<?> viewMyRequest(@PathVariable int id){
+    public ResponseEntity<?> deleteRequest(@PathVariable int id){
         return ResponseEntity.ok(requestService.deleteRequest(id));
     }
     @PostMapping("/updateRequest/{id}")
     public ResponseEntity<?> updateRequest(@PathVariable int id, @RequestBody RequestDto requestDto){
-        requestService.updateRequest(id, requestDto);
-        return ResponseEntity.ok("Delete request success");
+        return ResponseEntity.ok(requestService.updateRequest(id, requestDto));
     }
+
+
 
     @GetMapping("/logoutAccount")
     public ResponseEntity<?> logout() {
         return ResponseEntity.ok(userService.logout());
     }
 
+    @GetMapping("/viewRequest")
+    public ResponseEntity<?> viewMyRequest(){
+        return ResponseEntity.ok(requestService.getRequestByCreatedUser());
+    }
 }

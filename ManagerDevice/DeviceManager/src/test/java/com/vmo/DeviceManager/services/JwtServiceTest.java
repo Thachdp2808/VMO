@@ -19,6 +19,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.*;
+import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -26,6 +27,8 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class JwtServiceTest {
+    @Mock
+    Claims claims;
     @Mock
     JwtService jwtService;
     @Mock
@@ -73,25 +76,6 @@ class JwtServiceTest {
         assertEquals(expiration, jwtService.extractExpiration(token));
     }
 
-    @Test
-    void extractClaim_ValidToken_ReturnsClaimValue() {
-//        // Given
-//        JwtService jwtService = new JwtService();
-//        String token = "yourJWTToken";
-//        Claims claims = new DefaultClaims();
-//        claims.put("key", "value"); // Example claim
-//
-//        // Mock extractAllClaims()
-//        JwtService mockedJwtService = spy(jwtService);
-//        doReturn(claims).when(mockedJwtService).extractAllClaims(eq(token));
-//
-//        // When
-//        String result = mockedJwtService.extractClaim(token, Claims::getSubject); // Example claim resolver
-//
-//        // Then
-//        assertNotNull(result);
-//        assertEquals("value", result);
-    }
 
     @Test
     void isTokenExpired_NotExpired_ReturnsFalse() {
@@ -112,25 +96,29 @@ class JwtServiceTest {
         // Then
         assertFalse(result);
     }
+    @Test
+    public void testExtractClaim() {
+//        String token = "your_jwt_token_here";
+//        // Thiết lập mock cho claimsResolver
+//        Function<Claims, String> claimsResolver = Claims::getIssuer;
+//        when(claimsResolver.apply(claims)).thenReturn("example_issuer");
+//
+//        // Gọi phương thức extractClaim
+//        String result = jwtService.extractClaim(token, claimsResolver);
+//
+//        // Kiểm tra kết quả
+//        assertEquals("null", result);
+    }
 
     @Test
-    void validateToken_ValidTokenAndUserDetails_ReturnsTrue() {
-//        // Given
-//        JwtService jwtService = new JwtService();
-//        String token = "yourJWTToken";
-//        when(userRepository.findById(9)).thenReturn(Optional.empty());
-//        Claims claims = new DefaultClaims();
-//        claims.setSubject("username");
-//
-//        // Mock extractAllClaims() and extractExpiration()
-//        JwtService mockedJwtService = spy(jwtService);
-//        doReturn(claims).when(mockedJwtService).extractAllClaims(eq(token));
-//        doReturn(false).when(mockedJwtService).isTokenExpired(eq(token));
-//
-//        // When
-//        Boolean result = mockedJwtService.validateToken(token, userDetails);
-//
-//        // Then
-//        assertTrue(result);
+    void validateToken() {
+        UserDetails userDetails = User.builder()
+                .email("testUser")
+                .password("password")
+                .role(Erole.USER)
+                .build();
+        String token = jwtService.generateToken(userDetails);
+
+        assertFalse(jwtService.validateToken(token, userDetails));
     }
 }

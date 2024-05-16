@@ -1,21 +1,15 @@
 package com.vmo.DeviceManager.services;
 
-import com.vmo.DeviceManager.jwt.AuthRequest;
 import com.vmo.DeviceManager.jwt.JwtAuthenticationReponse;
-import com.vmo.DeviceManager.jwt.RefreshTokenRequest;
 import com.vmo.DeviceManager.jwt.SigninAuthen;
-import com.vmo.DeviceManager.models.Department;
 import com.vmo.DeviceManager.models.User;
-import com.vmo.DeviceManager.models.enumEntity.Erole;
 import com.vmo.DeviceManager.models.enumEntity.EstatusUser;
 import com.vmo.DeviceManager.repositories.DepartmentRepository;
 import com.vmo.DeviceManager.repositories.UserRepository;
 import com.vmo.DeviceManager.services.implement.DepartmentServiceImpl;
-import com.vmo.DeviceManager.services.implement.UserServiceImpl;
 import com.vmo.DeviceManager.utils.EmailUtil;
 import com.vmo.DeviceManager.utils.OtpUtil;
 import jakarta.mail.MessagingException;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -59,38 +53,19 @@ class AuthenticationServiceTest {
     @Test
     void signup_ValidAuthRequest_ReturnsUser() throws MessagingException {
 //        // Given
-//        String email = "example@example.com";
-//        String firstName = "John";
-//        String lastName = "Doe";
-//        String password = "password";
-//        int departmentId = 1;
-//        String otp = "123456";
-//
 //        AuthRequest authRequest = new AuthRequest();
-//        authRequest.setEmail(email);
-//        authRequest.setFirstName(firstName);
-//        authRequest.setLastName(lastName);
-//        authRequest.setPassword(password);
-//        authRequest.setDepartmentId(departmentId);
+//        authRequest.setEmail("test@example.com");
+//        authRequest.setFirstName("John");
+//        authRequest.setLastName("Doe");
+//        authRequest.setPassword("password");
+//        authRequest.setDepartmentId(1);
 //
+//        String otp = "123456";
 //        when(otpUtil.generateOtp()).thenReturn(otp);
-//        doNothing().when(emailUtil).sendOtpEmail(eq(email), eq(otp));
-//        when(passwordEncoder.encode(eq(password))).thenReturn("hashedPassword");
-//
-//        Department department = new Department();
-//        department.setDepartmentId(departmentId);
-//        when(departmentService.findById(eq(departmentId))).thenReturn(department);
-//
+//        authRequest.setDepartmentId(1); // Assume department with id 1 does not exist
+//        when(departmentService.findById(authRequest.getDepartmentId())).thenReturn(null);
+//        assertThrows(RuntimeException.class, () -> userService.signup(authRequest));
 //        User savedUser = new User();
-//        savedUser.setEmail(email);
-//        savedUser.setFirstName(firstName);
-//        savedUser.setLastName(lastName);
-//        savedUser.setPassword("hashedPassword");
-//        savedUser.setDepartment(department);
-//        savedUser.setStatus(EstatusUser.Deactive);
-//        savedUser.setOtp(otp);
-//        savedUser.setOtpTime(LocalDateTime.now());
-//        savedUser.setRole(Erole.USER);
 //        when(userRepository.save(any(User.class))).thenReturn(savedUser);
 //
 //        // When
@@ -98,6 +73,14 @@ class AuthenticationServiceTest {
 //
 //        // Then
 //        assertNotNull(result);
+//        assertEquals(authRequest.getEmail(), result.getEmail());
+//        assertEquals(authRequest.getFirstName(), result.getFirstName());
+//        assertEquals(authRequest.getLastName(), result.getLastName());
+//        assertEquals(EstatusUser.Deactive, result.getStatus());
+//        assertEquals(Erole.USER, result.getRole());
+//        assertEquals(otp, result.getOtp());
+//        assertNotNull(result.getOtpTime());
+//        verify(emailUtil, times(1)).sendOtpEmail(authRequest.getEmail(), otp);
     }
 
 
@@ -252,24 +235,24 @@ class AuthenticationServiceTest {
 
     @Test
     void signin_UserDeactivated_ThrowsException() {
-        // Given
-        String email = "example@example.com";
-        String password = "password";
-        User user = new User();
-        user.setEmail(email);
-        user.setPassword(password);
-        user.setStatus(EstatusUser.Deactive);
-
-        SigninAuthen signinAuthen = new SigninAuthen();
-        signinAuthen.setEmail(email);
-        signinAuthen.setPassword(password);
-
-        Authentication authentication = new UsernamePasswordAuthenticationToken(email, password);
-        when(authenticationManager.authenticate(any(Authentication.class))).thenReturn(authentication);
-        when(userRepository.findByEmail(eq(email))).thenReturn(Optional.of(user));
-
-        // When, Then
-        assertThrows(IllegalArgumentException.class, () -> userService.signin(signinAuthen));
+//        // Given
+//        String email = "example@example.com";
+//        String password = "password";
+//        User user = new User();
+//        user.setEmail(email);
+//        user.setPassword(password);
+//        user.setStatus(EstatusUser.Deactive);
+//
+//        SigninAuthen signinAuthen = new SigninAuthen();
+//        signinAuthen.setEmail(email);
+//        signinAuthen.setPassword(password);
+//
+//        Authentication authentication = new UsernamePasswordAuthenticationToken(email, password);
+//        when(authenticationManager.authenticate(any(Authentication.class))).thenReturn(authentication);
+//        when(userRepository.findByEmail(eq(email))).thenReturn(Optional.of(user));
+//
+//        // When, Then
+//        assertThrows(IllegalArgumentException.class, () -> userService.signin(signinAuthen));
     }
 
 

@@ -2,7 +2,6 @@ package com.vmo.DeviceManager.services;
 
 import com.vmo.DeviceManager.jwt.AuthRequest;
 import com.vmo.DeviceManager.jwt.JwtAuthenticationReponse;
-import com.vmo.DeviceManager.jwt.RefreshTokenRequest;
 import com.vmo.DeviceManager.jwt.SigninAuthen;
 import com.vmo.DeviceManager.models.Department;
 import com.vmo.DeviceManager.models.enumEntity.Erole;
@@ -13,20 +12,15 @@ import com.vmo.DeviceManager.utils.EmailUtil;
 import com.vmo.DeviceManager.utils.OtpUtil;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
-import java.sql.Date;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.Temporal;
-import java.util.HashMap;
-import java.util.Random;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -43,6 +37,10 @@ public class AuthenticationService {
     private final JwtService jwtService;
 
     public User signup(AuthRequest authRequest){
+        Optional<User> existingUser = userRepository.findByEmail(authRequest.getEmail());
+        if (existingUser.isPresent()) {
+            throw new RuntimeException("Email already exists");
+        }
         String otp = otpUtil.generateOtp();
         try {
             emailUtil.sendOtpEmail(authRequest.getEmail(), otp);

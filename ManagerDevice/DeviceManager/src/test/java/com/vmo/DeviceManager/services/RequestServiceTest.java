@@ -5,7 +5,9 @@ import com.vmo.DeviceManager.models.Request;
 import com.vmo.DeviceManager.models.RequestDetail;
 import com.vmo.DeviceManager.models.User;
 import com.vmo.DeviceManager.models.dto.RequestDto;
+import com.vmo.DeviceManager.models.enumEntity.Erole;
 import com.vmo.DeviceManager.models.enumEntity.EstatusDevice;
+import com.vmo.DeviceManager.models.enumEntity.EstatusRequest;
 import com.vmo.DeviceManager.repositories.DeviceRepository;
 import com.vmo.DeviceManager.repositories.RequestRepository;
 import com.vmo.DeviceManager.services.implement.RequestServiceImpl;
@@ -20,15 +22,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.time.LocalDate;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class RequestServiceTest {
@@ -213,43 +212,198 @@ class RequestServiceTest {
     }
 
     @Test
-    void sendRequest_AccessDenied_ReturnsAccessDeniedMessage() {
-//        User currentUser = new User();
-//        currentUser.setPassword("abc");
-//        currentUser.setEmail("abc@gmail.com");
-//        currentUser.setUserId(1);
-//        // Given
-//
-//        SecurityContext securityContext = mock(SecurityContext.class);
+    void sendRequest_Success() {
+        // Tạo một đối tượng User giả mạo với quyền USER
+        User user = new User();
+        user.setRole(Erole.USER);
+        user.setUserId(1); // id của user
+
+        // Tạo một đối tượng Authentication giả mạo và đặt người dùng giả mạo là người dùng hiện tại
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getPrincipal()).thenReturn(user);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // Mock danh sách pendingRequests và pendingRequestDetails
+
+
+        // Tạo một yêu cầu giả mạo
+        Request request = new Request();
+        request.setRequestId(1); // id của yêu cầu
+        request.setUserCreated(user);
+
+        // Thêm yêu cầu vào danh sách pendingRequests
+        requestService.setPendingRequests(Collections.singletonList(request));
+
+        // Gọi phương thức sendRequest
+        String result = requestService.sendRequest(1);
+
+        // Kiểm tra xem chuỗi trả về có phải là "Send successful" hay không
+        assertEquals("Send successful", result);
+
+        // Kiểm tra xem yêu cầu đã được chuyển sang trạng thái "Processing"
+        assertEquals(EstatusRequest.Processing, request.getStatus());
+    }
+
+    @Test
+    void approveRequest_Admin_Success() {
+        User adminUser = new User();
+        adminUser.setRole(Erole.ADMIN);
+        // Given
+        Authentication authentication = mock(Authentication.class);
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+
+
+        LocalDate currentDate = LocalDate.now();
+        Request request = new Request();
+        request.setRequestId(1);
+        request.setStatus(EstatusRequest.Pending);
+        requestService.setRequestsToSave(Collections.singletonList(request));
+        String result = requestService.approveRequest(1);
+
+        // Then
+        assertEquals("Request approved successfully", result);
+        assertEquals(EstatusRequest.Approved, request.getStatus());
+
+    }
+
+    @Test
+    void approveRequest_User_AccessDenied() {
 //        Authentication authentication = mock(Authentication.class);
-//        when(authentication.getPrincipal()).thenReturn(currentUser);
-//        when(securityContext.getAuthentication()).thenReturn(authentication);
-//        SecurityContextHolder.setContext(securityContext);
+//        SecurityContextHolder.getContext().setAuthentication(authentication);
 //
-//        int requestId = 2;
-//        RequestRepository requestRepository = mock(RequestRepository.class);
+//        User regularUser = new User();
+//        regularUser.setRole(Erole.USER);
+//        when(authentication.getPrincipal()).thenReturn(regularUser);
+//
 //        Request request = new Request();
-//        request.setRequestId(requestId);
-//        User newUser = User.builder().userId(2).password("abc").email("abc@gmail.com").build();
-//        request.setUserCreated(newUser); // User created by a different user
-//        when(requestRepository.findByRequestId(requestId)).thenReturn(request);
-//
+//        request.setRequestId(1);
+//        request.setStatus(EstatusRequest.Processing);
+//        requestService.setRequestsToSave(Collections.singletonList(request));
 //        // When
-//        String result = requestService.sendRequest(requestId);
+//        String result = requestService.approveRequest(1);
 //
 //        // Then
-//        assertEquals("Access Denied", result);
+//        assertEquals("Access denied", result);
+//        verifyNoInteractions(requestRepository);
     }
 
     @Test
-    void approveRequest() {
+    void approveRequest_RequestNotFound() {
+        User adminUser = new User();
+        adminUser.setRole(Erole.ADMIN);
+        // Given
+        Authentication authentication = mock(Authentication.class);
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // When
+        String result = requestService.approveRequest(1);
+
+        // Then
+        assertEquals("Request not found", result);
+        verifyNoMoreInteractions(requestRepository);
+
     }
 
     @Test
-    void rejectRequest() {
+    void rejectRequest_Admin_Success() {
+        User adminUser = new User();
+        adminUser.setRole(Erole.ADMIN);
+        // Given
+        Authentication authentication = mock(Authentication.class);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+
+        Request request = new Request();
+        request.setRequestId(1);
+        request.setStatus(EstatusRequest.Pending);
+        requestService.setRequestsToSave(Collections.singletonList(request));
+        // When
+        String result = requestService.rejectRequest(1);
+
+        // Then
+        assertEquals("Reject successful", result);
+        assertEquals(EstatusRequest.Rejected, request.getStatus());
+        verify(requestRepository).save(request);
     }
 
     @Test
-    void deleteRequest() {
+    void rejectRequest_User_AccessDenied() {
+//        Authentication authentication = mock(Authentication.class);
+//        SecurityContextHolder.getContext().setAuthentication(authentication);
+//
+//        User regularUser = new User();
+//        regularUser.setRole(Erole.USER);
+//        when(authentication.getPrincipal()).thenReturn(regularUser);
+//
+//        // When
+//        String result = requestService.rejectRequest(1);
+//
+//        // Then
+//        assertEquals("Access denied", result);
+//        verifyNoInteractions(requestRepository);
+    }
+
+    @Test
+    void rejectRequest_RequestNotFound() {
+        // Given
+        RequestRepository requestRepository = mock(RequestRepository.class);
+        Authentication authentication = mock(Authentication.class);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        User adminUser = new User();
+        adminUser.setRole(Erole.ADMIN);
+
+        // When
+        String result = requestService.rejectRequest(1);
+
+        // Then
+        assertEquals("Request not found", result);
+        verifyNoMoreInteractions(requestRepository);
+    }
+
+    @Test
+    void deleteRequest_Success() {
+        // Given
+        List<Request> pendingRequests = new ArrayList<>();
+        List<RequestDetail> pendingRequestDetails = new ArrayList<>();
+        Authentication authentication = mock(Authentication.class);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        User currentUser = new User();
+        currentUser.setUserId(1);
+
+
+        Request requestToDelete = new Request();
+        requestToDelete.setRequestId(1);
+        requestToDelete.setUserCreated(currentUser);
+        pendingRequests.add(requestToDelete);
+
+        RequestDetail requestDetailToDelete = new RequestDetail();
+        requestDetailToDelete.setRequest(requestToDelete);
+        pendingRequestDetails.add(requestDetailToDelete);
+        // When
+        String result = requestService.deleteRequest(1);
+
+        // Then
+        assertEquals("Delete request success", result);
+
+    }
+
+    @Test
+    void deleteRequest_Fail() {
+        Authentication authentication = mock(Authentication.class);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        User currentUser = new User();
+        currentUser.setUserId(1);
+
+        // When
+        String result = requestService.deleteRequest(2);
+
+        // Then
+        assertEquals("Delete request success", result);
     }
 }

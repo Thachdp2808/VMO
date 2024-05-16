@@ -97,6 +97,7 @@ public class UserServiceImpl implements UserService {
         User currentUser = (User) authentication.getPrincipal();
         User existingUser = userRepository.findById(currentUser.getUserId())
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + currentUser.getUserId()));
+        authRequest.validateAndTrim();
         authRequest.setPassword(passwordEncoder.encode(authRequest.getPassword()));
         existingUser.setDepartment(departmentService.findById(authRequest.getDepartmentId()));
         try {
@@ -126,12 +127,14 @@ public class UserServiceImpl implements UserService {
         }
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
+
         if(authRequest.getPassword() == null){
             authRequest.setPassword(existingUser.getPassword());
         }
         if(authRequest.getEmail() == null){
             authRequest.setEmail(existingUser.getEmail());
         }
+        authRequest.validateAndTrim();
         authRequest.setPassword(passwordEncoder.encode(authRequest.getPassword()));
         existingUser.setDepartment(departmentService.findById(authRequest.getDepartmentId()));
         try {
@@ -140,9 +143,9 @@ public class UserServiceImpl implements UserService {
         } catch (Exception e){
             throw new RuntimeException("Can not update your user please try again");
         }
-
         userRepository.save(existingUser);
         return "Update successful";
     }
+
 
 }

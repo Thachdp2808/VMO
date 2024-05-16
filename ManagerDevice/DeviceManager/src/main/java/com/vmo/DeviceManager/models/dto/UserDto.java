@@ -32,6 +32,7 @@ public class UserDto {
                 ", email='" + email + '\'' +
                 ", address='" + address + '\'' +
                 ", jobTitle='" + jobTitle + '\'' +
+                ", status='" + status + '\'' +
                 ", role=" + role +
                 ", department=" + department.getDepartmentId() +
                 '}';

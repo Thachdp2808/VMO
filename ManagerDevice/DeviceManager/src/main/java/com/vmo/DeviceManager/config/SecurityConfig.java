@@ -38,21 +38,17 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthFilter jwtAuthFilter;
 
-    // User Creation
     private final UserDetailService userDetailsService;
 
     public SecurityConfig(UserDetailService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 
-    // Configuring HttpSecurity
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> {
-                    request.requestMatchers("/**")
-                            .permitAll();
-                    request.requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll();
+                    request.requestMatchers("/authentication/**").permitAll();
                     request.requestMatchers("/api/v1/admin/**").hasAnyRole("ADMIN");
                     request.requestMatchers("/api/v1/user/**").hasAnyRole("USER")
                             .anyRequest().authenticated();

@@ -10,7 +10,7 @@ public interface RequestService {
 
     Request findByRequestId(int id);
 
-    void updateRequest(int requestId, RequestDto requestDto);
+    String updateRequest(int requestId, RequestDto requestDto);
 
     List<Request> getRequestByCreatedUser();
 
@@ -23,4 +23,6 @@ public interface RequestService {
     String rejectRequest(int requestId);
 
     String deleteRequest(int requestId);
+
+    String returnDevice(int id);
 }
