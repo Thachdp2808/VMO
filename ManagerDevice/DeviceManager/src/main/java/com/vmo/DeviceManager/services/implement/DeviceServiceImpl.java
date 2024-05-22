@@ -1,5 +1,8 @@
 package com.vmo.DeviceManager.services.implement;
 
+import com.vmo.DeviceManager.exceptions.model.CategoryException;
+import com.vmo.DeviceManager.exceptions.model.DeviceException;
+import com.vmo.DeviceManager.exceptions.model.PagingException;
 import com.vmo.DeviceManager.models.Category;
 import com.vmo.DeviceManager.models.Device;
 import com.vmo.DeviceManager.models.User;
@@ -38,20 +41,20 @@ public class DeviceServiceImpl implements DeviceService {
     private void validateDeviceData(DeviceDto deviceDto) {
         String deviceName = deviceDto.getDeviceName();
         if (deviceName == null || deviceName.isBlank()) {
-            throw new RuntimeException("Device name cannot be empty");
+            throw new DeviceException("Device name cannot be empty");
         }
         if (!deviceName.matches("[a-zA-Z0-9\\s]+")) {
-            throw new RuntimeException("Device name contains invalid characters");
+            throw new DeviceException("Device name contains invalid characters");
         }
 
         double price = deviceDto.getPrice();
         if (price <= 0) {
-            throw new RuntimeException("Price must be a positive number");
+            throw new DeviceException("Price must be a positive number");
         }
 
         String description = deviceDto.getDescription();
         if (description == null || description.isBlank()) {
-            throw new RuntimeException("Description cannot be empty");
+            throw new DeviceException("Description cannot be empty");
         }
     }
 
@@ -59,7 +62,7 @@ public class DeviceServiceImpl implements DeviceService {
     public String addDevice(DeviceDto deviceDto) {
         // Kiểm tra category tồn tại hay không
         Category category = categoryRepository.findById(deviceDto.getCategory())
-                .orElseThrow(() -> new RuntimeException("Category does not exist"));
+                .orElseThrow(() -> new CategoryException(deviceDto.getCategory()));
 
         // Kiểm tra dữ liệu đầu vào
         validateDeviceData(deviceDto);
@@ -79,14 +82,14 @@ public class DeviceServiceImpl implements DeviceService {
     @Transactional
     public String updateDevice(int id, DeviceDto deviceDto) {
         Device exitsDevice = deviceRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Device does not exist"));
+                .orElseThrow(() -> new DeviceException(id));
 
         // Kiểm tra dữ liệu đầu vào
         validateDeviceData(deviceDto);
 
         // Kiểm tra category tồn tại hay không
         Category category = categoryRepository.findById(deviceDto.getCategory())
-                .orElseThrow(() -> new RuntimeException("Category does not exist"));
+                .orElseThrow(() -> new CategoryException(deviceDto.getCategory()));
 
         // Cập nhật thông tin thiết bị
         exitsDevice.setDeviceName(deviceDto.getDeviceName().toUpperCase());
@@ -104,7 +107,7 @@ public class DeviceServiceImpl implements DeviceService {
     public List<Device> getAllDevice() {
         List<Device> devices = deviceRepository.findAll();
         if (devices.isEmpty()) {
-            throw new RuntimeException("No devices found");
+            throw new DeviceException("No devices found");
         }
         return devices;
     }
@@ -115,14 +118,14 @@ public class DeviceServiceImpl implements DeviceService {
         User currentUser = (User) authentication.getPrincipal();
         List<Device> list =  deviceRepository.getMyDevices(currentUser.getUserId());
         if(list.isEmpty()){
-            throw new RuntimeException("No devices found");
+            throw new DeviceException("No devices found");
         }
         return list;
     }
 
     @Override
     public Device getDeviceById(int id) {
-        return deviceRepository.findById(id).orElseThrow(() -> new RuntimeException("Device does not exits"));
+        return deviceRepository.findById(id).orElseThrow(() -> new DeviceException(id));
     }
 
     @Override
@@ -162,7 +165,7 @@ public class DeviceServiceImpl implements DeviceService {
         }
         dashboard.append("====== Status Device ======").append("\n");
         if (devices.isEmpty()) {
-            throw new RuntimeException("No devices found");
+            throw new DeviceException("No devices found");
         }
         for(Device device: devices){
             if(device.getStatus() == EstatusDevice.Availability){
@@ -186,10 +189,10 @@ public class DeviceServiceImpl implements DeviceService {
     public Page<Device> pageAndSearch(String keyword, List<String> category, List<String> type, Integer pageNo, Integer pageSize) {
         List<Device> listDevice = getAllDevice();
         if (pageNo == null || pageNo <= 0) {
-            throw new IllegalArgumentException("Invalid page number");
+            throw new PagingException("Invalid page number");
         }
         if (pageSize == null || pageSize <= 0) {
-            throw new IllegalArgumentException("Invalid page size");
+            throw new PagingException("Invalid page size");
         }
         int size;
         // Tạo ra Predicate dựa trên keyword, category và type
@@ -207,7 +210,7 @@ public class DeviceServiceImpl implements DeviceService {
 
         int totalPages = (int) Math.ceil((double) size / pageSize);
         if (pageNo > totalPages) {
-            throw new IllegalArgumentException("Page number exceeds total pages");
+            throw new PagingException("Page number exceeds total pages");
         }
 
         // Phân trang và trả về kết quả

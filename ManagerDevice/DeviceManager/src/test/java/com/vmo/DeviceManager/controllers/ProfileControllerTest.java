@@ -46,7 +46,7 @@ class ProfileControllerTest {
     @Test
     void updateProfile() {
         Department department = Department.builder().departmentId(1).departmentName("DU20").address("abcd").build();
-        AuthRequest authRequest = new AuthRequest("newUserName", "newPassword","newEmail","newFirstName","newLastName",1);
+        AuthRequest authRequest = new AuthRequest("newUserName", "newPassword","newEmail",0,"newFirstName","newLastName",1);
 
         // Create a mock User object for the updated user profile
         User updatedUser = User.builder()

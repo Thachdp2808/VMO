@@ -125,17 +125,23 @@ public class UserServiceImpl implements UserService {
         if(currentUser.getRole() == Erole.USER){
             return "Permission denied";
         }
+        authRequest.validateAndTrim();
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
-
-        if(authRequest.getPassword() == null){
+        if(authRequest.getPassword() == null ){
             authRequest.setPassword(existingUser.getPassword());
+            System.out.println(authRequest);
+            System.out.println("null");
+        }else{
+            authRequest.setPassword(passwordEncoder.encode(authRequest.getPassword()));
+            System.out.println(authRequest);
+            System.out.println("not null");
         }
         if(authRequest.getEmail() == null){
             authRequest.setEmail(existingUser.getEmail());
+            System.out.println(existingUser.getEmail());
         }
-        authRequest.validateAndTrim();
-        authRequest.setPassword(passwordEncoder.encode(authRequest.getPassword()));
+
         existingUser.setDepartment(departmentService.findById(authRequest.getDepartmentId()));
         try {
             // Update existingUser with updatedUser's properties
@@ -144,6 +150,7 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Can not update your user please try again");
         }
         userRepository.save(existingUser);
+        System.out.println(existingUser.getPassword());
         return "Update successful";
     }
 

@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/authentication")
+@RequestMapping("/api/v1/authentication")
 @RequiredArgsConstructor
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
@@ -37,12 +37,12 @@ public class AuthenticationController {
     }
 
 
-    @PostMapping("/changePassword")
+    @PostMapping("/change-password")
     public ResponseEntity<?> changePassword(@RequestParam String email,
                                             @RequestParam String otp,@RequestBody SigninAuthen signinAuthen){
         return ResponseEntity.ok(authenticationService.changePassword(email, signinAuthen.getPassword(), otp));
     }
-    @PostMapping("/resetPassword")
+    @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestParam String email){
         return ResponseEntity.ok(authenticationService.resetPassword(email));
     }

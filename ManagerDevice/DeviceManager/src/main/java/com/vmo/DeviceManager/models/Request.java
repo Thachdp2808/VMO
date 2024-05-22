@@ -29,7 +29,6 @@ public class Request {
     private EstatusRequest status;
     @ManyToOne
     @JoinColumn(name = "user_created")
-    @JsonIgnore
     private User userCreated;
     private Integer userResolve;
     @OneToMany(mappedBy = "request", fetch = FetchType.EAGER)

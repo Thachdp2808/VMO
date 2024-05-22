@@ -5,10 +5,7 @@ import com.vmo.DeviceManager.models.Device;
 import com.vmo.DeviceManager.models.Request;
 import com.vmo.DeviceManager.models.dto.DeviceDto;
 import com.vmo.DeviceManager.models.dto.UserDto;
-import com.vmo.DeviceManager.services.DeviceService;
-import com.vmo.DeviceManager.services.RequestDetailService;
-import com.vmo.DeviceManager.services.RequestService;
-import com.vmo.DeviceManager.services.UserService;
+import com.vmo.DeviceManager.services.*;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,33 +18,41 @@ import java.util.List;
 @RequestMapping("/api/v1/admin")
 @RequiredArgsConstructor
 @SecurityRequirement(name = "bearerAuth")
+
 public class AdminController {
 
     private final UserService userService;
     private final RequestService requestService;
     private final RequestDetailService requestDetailService;
     private final DeviceService deviceService;
+    private final DepartmentService departmentService;
 
     @GetMapping
     public ResponseEntity<String> sayHello(){
         return ResponseEntity.ok("Hi Admin");
     }
-    @GetMapping("/searchUser")
+    @GetMapping("/search-user")
     public ResponseEntity<?> searchUser(@RequestParam(name = "keyword", required = false, defaultValue = "") String keyword,
                                         @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
                                         @RequestParam(name = "pageSize", defaultValue = "4") Integer pageSize){
         return ResponseEntity.ok(userService.pageAndSearch(keyword, pageNo, pageSize));
     }
-    @GetMapping("/request")
-    public ResponseEntity<?> viewRequest(){
-        return ResponseEntity.ok(requestService.getRequestAdmin());
+    @GetMapping("/requests")
+    public ResponseEntity<?> viewRequestAdmin(@RequestParam(name = "status", required = false) List<String> status,
+                                           @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                           @RequestParam(name = "pageSize", defaultValue = "4") Integer pageSize){
+        return ResponseEntity.ok(requestService.pageAndSearchRequest(requestService.getRequestAdmin(),status, pageNo, pageSize));
     }
-    @PostMapping("/addDevice")
+    @PostMapping("/devices")
     public ResponseEntity<?> addDevice(@RequestBody DeviceDto deviceDto){
         return ResponseEntity.ok(deviceService.addDevice(deviceDto));
     }
+    @GetMapping("/departments")
+    public ResponseEntity<?> viewDepartment(){
+        return ResponseEntity.ok(departmentService.findAll());
+    }
 
-    @PostMapping("/updateDevice/{id}")
+    @PutMapping("/devices/{id}")
     public ResponseEntity<?> updateDevice(@PathVariable int id, @RequestBody DeviceDto deviceDto){
        return ResponseEntity.ok(deviceService.updateDevice(id, deviceDto));
     }
@@ -77,11 +82,11 @@ public class AdminController {
         return ResponseEntity.ok(requestService.returnDevice(id));
     }
 
-    @PostMapping("/deActive/{id}")
+    @PostMapping("/de-active/{id}")
     public ResponseEntity<?> deActiveUser(@PathVariable int id){
         return ResponseEntity.ok(userService.deActiveUser(id));
     }
-    @PostMapping("/updateUser/{id}")
+    @PutMapping("/update-users/{id}")
     public ResponseEntity<?> updateProfile(@PathVariable int id, @RequestBody AuthRequest authRequest){
         return ResponseEntity.ok(userService.updateUserById(id, authRequest));
     }

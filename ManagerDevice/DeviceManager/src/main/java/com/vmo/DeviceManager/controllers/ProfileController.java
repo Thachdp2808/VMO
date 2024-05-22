@@ -17,19 +17,19 @@ import org.springframework.web.bind.annotation.*;
 import java.nio.file.AccessDeniedException;
 
 @RestController
-@RequestMapping("/profile")
+@RequestMapping("/api/v1/profile")
 @RequiredArgsConstructor
 @SecurityRequirement(name = "bearerAuth")
 public class ProfileController {
     @Autowired
     UserService userService;
 
-    @GetMapping("")
+    @GetMapping("/users")
     public ResponseEntity<?> getUser()  {
         return ResponseEntity.ok(userService.getUser());
 
     }
-    @PostMapping("/update")
+    @PutMapping("/users")
     public ResponseEntity<?> updateProfile(@RequestBody AuthRequest authRequest){
         return ResponseEntity.ok(userService.updateProfile(authRequest));
     }

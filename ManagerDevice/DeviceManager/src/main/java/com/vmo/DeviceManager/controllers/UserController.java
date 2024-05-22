@@ -32,7 +32,7 @@ public class UserController {
         return ResponseEntity.ok("Hi User");
     }
 
-    @GetMapping("/viewMyDevice")
+    @GetMapping("/devices")
     public ResponseEntity<?> getMyDevice(){
         return ResponseEntity.ok(deviceService.getMyDevice());
     }

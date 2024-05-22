@@ -25,7 +25,6 @@ public class RequestDetail {
 
     @ManyToOne
     @JoinColumn(name = "device_id")
-    @JsonIgnore
     private Device device;
     @Column( name = "start_time")
     private Date startTime;

@@ -1,5 +1,6 @@
 package com.vmo.DeviceManager.services.implement;
 
+import com.vmo.DeviceManager.exceptions.model.UserException;
 import com.vmo.DeviceManager.repositories.UserRepository;
 import com.vmo.DeviceManager.services.UserDetailService;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,7 +22,7 @@ public class UserDetailServiceImpl implements UserDetailService {
         return new UserDetailsService() {
             @Override
             public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-                return userRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                return userRepository.findByEmail(username).orElseThrow(() -> new UserException(username));
             }
         };
     }
