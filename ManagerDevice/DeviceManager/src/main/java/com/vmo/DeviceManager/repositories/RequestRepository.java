@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface RequestRepository extends JpaRepository<Request, Integer> {
@@ -18,6 +19,6 @@ public interface RequestRepository extends JpaRepository<Request, Integer> {
     List<Request> findByUserCreated(User userCreated);
 
     @Query("SELECT Max(requestId) FROM Request ")
-    int getLastId();
+    Optional<Integer> getLastId();
 
 }

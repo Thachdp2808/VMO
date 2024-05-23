@@ -42,6 +42,12 @@ public class GlobalExceptionHandler {
         return createResponseDetail(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<Object> unauthorizedExceptionHandler(UnauthorizedException ex, HttpServletRequest request) {
+        log.warn(buildLogMessage("Unauthorized", ex.getMessage(), request));
+        return createResponseDetail(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(PagingException.class)
     public ResponseEntity<Object> PagingExceptionHandler(PagingException ex, HttpServletRequest request) {
         log.warn(buildLogMessage("Paging", ex.getMessage(), request));
@@ -61,8 +67,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(detail, status);
     }
     private String buildLogMessage(String failedActionName, String exceptionMessage, HttpServletRequest request) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = (User) authentication.getPrincipal();
-        return String.format("%s error: %s - Uri: %s - Method: %s - IP address: %s - Current user: %s", failedActionName, exceptionMessage, request.getRequestURI(), request.getMethod(), request.getRemoteAddr(), currentUser.getUserId() == -1 ? "Anonymous" : currentUser.getUserId());
+        return String.format("%s error: %s - Uri: %s - Method: %s - IP address: %s ", failedActionName, exceptionMessage, request.getRequestURI(), request.getMethod(), request.getRemoteAddr());
     }
 }

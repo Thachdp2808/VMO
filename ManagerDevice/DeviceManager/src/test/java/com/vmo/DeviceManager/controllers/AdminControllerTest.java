@@ -157,10 +157,10 @@ class AdminControllerTest {
 
         // Mock the getDurationDay() method to return the expected duration
         String expectedDuration = "5"; // Replace this with your expected duration
-        when(requestDetailService.getDurationDay(requestId)).thenReturn(expectedDuration);
+        when(requestDetailService.getDurationDay()).thenReturn(expectedDuration);
 
         // Call the durationDay() method
-        ResponseEntity<?> responseEntity = adminController.durationDay(requestId);
+        ResponseEntity<?> responseEntity = adminController.durationDay();
 
         // Assert that the response entity is not null
         assertEquals(200, responseEntity.getStatusCodeValue());

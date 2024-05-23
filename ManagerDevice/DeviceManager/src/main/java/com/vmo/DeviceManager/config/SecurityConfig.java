@@ -48,6 +48,14 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> {
+                    request.requestMatchers(
+                            "/v3/api-docs/**",
+                            "/swagger-ui.html",
+                            "/swagger-ui/**",
+                            "/swagger-resources/**",
+                            "/webjars/**",
+                            "/api/v1/api-docs/**"
+                    ).permitAll(); // Cho phép truy cập không bảo mật vào các endpoint của Swagger
                     request.requestMatchers("/api/v1/authentication/**").permitAll();
                     request.requestMatchers("/api/v1/admin/**").hasAnyRole("ADMIN");
                     request.requestMatchers("/api/v1/user/**").hasAnyRole("USER");

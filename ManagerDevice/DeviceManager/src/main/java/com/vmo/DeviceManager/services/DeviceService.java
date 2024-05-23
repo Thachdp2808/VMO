@@ -14,13 +14,15 @@ public interface DeviceService {
     List<Device> getMyDevice();
     Device getDeviceById(int id);
 
-    Page<Device> pageAndSearch( String keyword, List<String> category, List<String> type, Integer pageNo, Integer pageSize);
+    Page<Device> pageAndSearch( String keyword,List<String> status, List<String> category, List<String> type, Integer pageNo, Integer pageSize);
 
     Page<Device> getAll(Integer pageNo);
 
     List<Category> getAllCategory();
 
     String getDashboard();
+
+
 
 
 }

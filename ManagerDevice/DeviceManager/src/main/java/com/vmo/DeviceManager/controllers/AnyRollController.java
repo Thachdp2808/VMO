@@ -24,11 +24,12 @@ public class AnyRollController {
 
     @GetMapping("/devices")
     public ResponseEntity<?> getDevice(@RequestParam(name = "keyword", required = false, defaultValue = "") String keyword,
+                                       @RequestParam(name = "status", required = false) List<String> status,
                                        @RequestParam(name = "type", required = false) List<String> type,
                                        @RequestParam(name = "category", required = false) List<String> category,
                                        @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
                                        @RequestParam(name = "pageSize", defaultValue = "4") Integer pageSize){
-        return ResponseEntity.ok(deviceService.pageAndSearch( keyword,category, type, pageNo, pageSize));
+        return ResponseEntity.ok(deviceService.pageAndSearch( keyword,status, category, type, pageNo, pageSize));
     }
 
     @GetMapping("/categories")
@@ -55,8 +56,6 @@ public class AnyRollController {
     public ResponseEntity<?> updateRequest(@PathVariable int id, @RequestBody RequestDto requestDto){
         return ResponseEntity.ok(requestService.updateRequest(id, requestDto));
     }
-
-
 
     @GetMapping("/logout-account")
     public ResponseEntity<?> logout() {

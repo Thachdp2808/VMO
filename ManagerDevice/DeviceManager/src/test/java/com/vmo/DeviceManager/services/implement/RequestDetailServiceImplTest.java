@@ -59,10 +59,10 @@ class RequestDetailServiceImplTest {
         int deviceId = 123;
 
         // Mock behavior
-        when(requestDetailRepository.getDurationDay(deviceId)).thenReturn(5);
+        when(requestDetailRepository.getDurationDay());
 
         // Call method
-        String result = requestDetailService.getDurationDay(deviceId);
+        String result = requestDetailService.getDurationDay();
 
         // Verify result
         assertEquals("Duration day of device: 5 day", result);

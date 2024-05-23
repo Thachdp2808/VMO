@@ -11,6 +11,8 @@ import com.vmo.DeviceManager.models.enumEntity.EstatusDevice;
 import com.vmo.DeviceManager.repositories.CategoryRepository;
 import com.vmo.DeviceManager.repositories.DeviceRepository;
 import com.vmo.DeviceManager.services.DeviceService;
+import com.vmo.DeviceManager.services.RequestDetailService;
+import com.vmo.DeviceManager.services.StorageService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -20,7 +22,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -30,6 +31,8 @@ public class DeviceServiceImpl implements DeviceService {
     private final DeviceRepository deviceRepository;
 
     private final CategoryRepository categoryRepository;
+
+
 
     public DeviceServiceImpl(DeviceRepository deviceRepository, CategoryRepository categoryRepository) {
         this.deviceRepository = deviceRepository;
@@ -185,8 +188,10 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
 
+
+
     @Override
-    public Page<Device> pageAndSearch(String keyword, List<String> category, List<String> type, Integer pageNo, Integer pageSize) {
+    public Page<Device> pageAndSearch(String keyword,List<String> status, List<String> category, List<String> type, Integer pageNo, Integer pageSize) {
         List<Device> listDevice = getAllDevice();
         if (pageNo == null || pageNo <= 0) {
             throw new PagingException("Invalid page number");
@@ -197,11 +202,13 @@ public class DeviceServiceImpl implements DeviceService {
         int size;
         // Tạo ra Predicate dựa trên keyword, category và type
         Predicate<Device> predicate = device -> {
-            boolean matchKeyword = keyword == null || keyword.isEmpty() || device.getDeviceName().toLowerCase().contains(keyword.toLowerCase());
+            String word = keyword.trim();
+            boolean matchStatus = status == null || status.isEmpty() || status.contains(device.getStatus().name());
+            boolean matchKeyword = word.isEmpty() || device.getDeviceName().toLowerCase().contains(word.toLowerCase());
             //Kiểm tra xem categoryId có tồn tại trong category hay không
             boolean matchCategory = category == null || category.isEmpty() || category.contains(device.getCategory().getCategoryName());
             boolean matchType = type == null || type.isEmpty() || type.contains(device.getCategory().getType());
-            return matchKeyword && matchCategory && matchType;
+            return matchStatus & matchKeyword && matchCategory && matchType;
         };
 
         // Áp dụng Predicate vào danh sách thiết bị

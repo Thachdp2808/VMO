@@ -62,22 +62,27 @@ public class AdminController {
         return ResponseEntity.ok(deviceService.getDashboard());
     }
 
-    @GetMapping("/getDurationDay/{id}")
-    public ResponseEntity<?> durationDay(@PathVariable int id){
-        return ResponseEntity.ok(requestDetailService.getDurationDay(id));
+    @GetMapping("/duration-day")
+    public ResponseEntity<?> durationDay(){
+        return ResponseEntity.ok(requestDetailService.getDurationDay());
     }
 
     @PostMapping("/approve/{id}")
     public ResponseEntity<?> approveRequest(@PathVariable int id){
         return ResponseEntity.ok(requestService.approveRequest(id));
     }
+    @GetMapping("/upload-file-dashboard")
+    public ResponseEntity<?> uploadFileDashboard(){
+        return ResponseEntity.ok(requestDetailService.uploadFileDashboard());
+    }
+
 
     @PostMapping("/reject/{id}")
     public ResponseEntity<?> rejectRequest(@PathVariable int id){
         return ResponseEntity.ok(requestService.rejectRequest(id));
     }
 
-    @PostMapping("/returnDevice/{id}")
+    @PostMapping("/return-device/{id}")
     public ResponseEntity<?> returnDevice(@PathVariable int id){
         return ResponseEntity.ok(requestService.returnDevice(id));
     }

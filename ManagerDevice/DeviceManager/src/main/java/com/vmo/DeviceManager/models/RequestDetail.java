@@ -31,6 +31,7 @@ public class RequestDetail {
     @Column( name = "end_time")
     private Date endTime;
 
+
     @Override
     public String toString() {
         return "RequestDetail{" +

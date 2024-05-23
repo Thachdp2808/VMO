@@ -9,5 +9,6 @@ import java.util.List;
 
 public interface RequestDetailService {
     void saveRequestDetail(Request request, List<Device> listDevice, Date start, Date end);
-    String getDurationDay(int deviceid);
+    String getDurationDay();
+    String uploadFileDashboard();
 }

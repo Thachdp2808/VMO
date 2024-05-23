@@ -45,15 +45,16 @@ class AnyRollControllerTest {
         String keyword = "keyword";
         List<String> type = Arrays.asList("type1", "type2");
         List<String> category = Arrays.asList("category1", "category2");
+        List<String> status = Arrays.asList("status1", "status2");
         int pageNo = 1;
         int pageSize = 4;
         Page<Device> page = new PageImpl<>(Collections.emptyList());
 
         // Mock the service method call
-        when(deviceService.pageAndSearch(keyword, category, type, pageNo, pageSize)).thenReturn(page);
+        when(deviceService.pageAndSearch(keyword,status,  category, type, pageNo, pageSize)).thenReturn(page);
 
         // Call the controller method
-        ResponseEntity<?> responseEntity = anyRollController.getDevice(keyword, type, category, pageNo, pageSize);
+        ResponseEntity<?> responseEntity = anyRollController.getDevice(keyword,status, type, category, pageNo, pageSize);
         // Verify that the controller returns a ResponseEntity with status code 200 OK
         Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
     }

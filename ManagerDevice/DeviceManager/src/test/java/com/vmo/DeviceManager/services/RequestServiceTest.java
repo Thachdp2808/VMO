@@ -144,7 +144,6 @@ class RequestServiceTest {
         requestDetail2.setDevice(device2);
         requestDetail2.setRequest(request1);
         requestDetailsToSave.add(requestDetail2);
-        requestService.setRequestDetailsToSave(requestDetailsToSave);
 
         // When
         requestService.updateDeviceStatus(1, EstatusDevice.Availability);
@@ -195,7 +194,7 @@ class RequestServiceTest {
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
 
-        when(requestRepository.getLastId()).thenReturn(1); // Example value
+        when(requestRepository.getLastId()).thenReturn(Optional.of(1)); // Example value
         // Mock the behavior of deviceService.getDeviceById as needed
 
 

@@ -1,5 +1,6 @@
 package com.vmo.DeviceManager.filter;
 
+import com.vmo.DeviceManager.exceptions.model.UserException;
 import com.vmo.DeviceManager.models.User;
 import com.vmo.DeviceManager.repositories.UserRepository;
 import com.vmo.DeviceManager.services.JwtService;
@@ -47,9 +48,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 System.out.println(userDetails.getAuthorities());
                 System.out.println(userDetails.getUsername());
                 User user = userRepository.findByEmail(userDetails.getUsername())
-                        .orElseThrow(() -> new RuntimeException("User not found with this email: " + userDetails.getUsername()));
+                        .orElseThrow(() -> new UserException(userDetails.getUsername()));
                 System.out.print(user.getToken());
-                if(user.getToken()==null || user.getToken().isEmpty() ){
+                if(user.getToken()==null || user.getToken().isEmpty()  ){
                     response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     return;
                 }

@@ -26,6 +26,8 @@ public class Request {
     private Date createdDate;
     @Column( name = "resolve_date")
     private Date resolveDate;
+    @Column( name = "actual_end_time")
+    private Date actualEndTime;
     private EstatusRequest status;
     @ManyToOne
     @JoinColumn(name = "user_created")
@@ -43,6 +45,7 @@ public class Request {
                 "requestId=" + requestId +
                 ", createdDate=" + createdDate +
                 ", resolveDate=" + resolveDate +
+                ", actualEndTime=" + actualEndTime +
                 ", status=" + status +
                 ", userCreated=" + userCreated.getUserId() +
                 ", userResolve=" + userResolve +
