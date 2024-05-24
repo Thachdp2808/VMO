@@ -21,6 +21,7 @@ public class UserDto {
     private EstatusUser status;
     private Erole role;
     private Department department;
+    private String image;
 
     @Override
     public String toString() {
@@ -35,6 +36,7 @@ public class UserDto {
                 ", status='" + status + '\'' +
                 ", role=" + role +
                 ", department=" + department.getDepartmentId() +
+                ", image=" + image +
                 '}';
     }
 }

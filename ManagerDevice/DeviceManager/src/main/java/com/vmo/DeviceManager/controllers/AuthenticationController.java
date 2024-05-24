@@ -16,15 +16,10 @@ import org.springframework.web.bind.annotation.*;
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
 
-    @PostMapping("/signup")
-    public ResponseEntity<User> signup(@RequestBody AuthRequest authRequest){
-        return ResponseEntity.ok(authenticationService.signup(authRequest));
-    }
-
-    @PutMapping("/verify-account")
+    @PutMapping("/reset-password")
     public ResponseEntity<String> verifyAccount(@RequestParam String email,
                                                 @RequestParam String otp) {
-        return ResponseEntity.ok(authenticationService.verifyAccount(email, otp));
+        return ResponseEntity.ok(authenticationService.resetPassword(email, otp));
     }
     @PutMapping("/regenerate-otp")
     public ResponseEntity<String> regenerateOtp(@RequestParam String email) {
@@ -34,16 +29,5 @@ public class AuthenticationController {
     @PostMapping("/signin")
     public ResponseEntity<JwtAuthenticationReponse> signin(@RequestBody SigninAuthen signinAuthen){
         return ResponseEntity.ok(authenticationService.signin(signinAuthen));
-    }
-
-
-    @PostMapping("/change-password")
-    public ResponseEntity<?> changePassword(@RequestParam String email,
-                                            @RequestParam String otp,@RequestBody SigninAuthen signinAuthen){
-        return ResponseEntity.ok(authenticationService.changePassword(email, signinAuthen.getPassword(), otp));
-    }
-    @PostMapping("/reset-password")
-    public ResponseEntity<?> resetPassword(@RequestParam String email){
-        return ResponseEntity.ok(authenticationService.resetPassword(email));
     }
 }

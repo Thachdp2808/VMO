@@ -97,7 +97,7 @@ class AuthenticationServiceTest {
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
 
         // When
-        String result = userService.verifyAccount(email, otp);
+        String result = userService.resetPassword(email, otp);
 
         // Then
         assertEquals("OTP verified you can login", result);
@@ -117,7 +117,7 @@ class AuthenticationServiceTest {
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
 
         // When
-        String result = userService.verifyAccount(email, "654321");
+        String result = userService.resetPassword(email, "654321");
 
         // Then
         assertEquals("Please regenerate otp and try again", result);
@@ -136,7 +136,7 @@ class AuthenticationServiceTest {
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
 
         // When
-        String result = userService.verifyAccount(email, otp);
+        String result = userService.resetPassword(email, otp);
 
         // Then
         assertEquals("Please regenerate otp and try again", result);
@@ -151,7 +151,7 @@ class AuthenticationServiceTest {
 
         // Then
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            userService.verifyAccount(email, otp);
+            userService.resetPassword(email, otp);
         });
         assertEquals("User not found with this email: " + email, exception.getMessage());
     }
@@ -256,70 +256,17 @@ class AuthenticationServiceTest {
     }
 
 
-    @Test
-    void changePassword_UserNotFound_ThrowsRuntimeException() {
-        // Given
-        String email = "example@example.com";
-        String password = "newPassword";
-        String otp = "123456";
 
-        when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
-
-        // When / Then
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> userService.changePassword(email, password, otp));
-        assertEquals("User not found with this email: " + email, exception.getMessage());
-    }
-
-    @Test
-    void changePassword_InvalidOrExpiredOtp_ReturnsEmptyJwtAuthenticationResponse() {
-        // Given
-        String email = "example@example.com";
-        String password = "newPassword";
-        String otp = "123456";
-        User user = new User();
-        user.setOtp(otp);
-        user.setOtpTime(LocalDateTime.now().minusMinutes(2)); // Set otpTime to 2 minutes ago
-
-        when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
-
-        // When
-        JwtAuthenticationReponse result = userService.changePassword(email, password, otp);
-
-        // Then
-        assertNotNull(result);
-        assertNull(result.getToken());
-    }
-
-    @Test
-    void changePassword_ValidOtp_ReturnsJwtAuthenticationResponseWithNewToken() {
-        // Given
-        String email = "example@example.com";
-        String password = "newPassword";
-        String otp = "123456";
-        User user = new User();
-        user.setOtp(otp);
-        user.setOtpTime(LocalDateTime.now());
-
-        when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
-        when(jwtService.generateToken(user)).thenReturn("newToken");
-        when(passwordEncoder.encode(password)).thenReturn("hashedPassword");
-
-        // When
-        JwtAuthenticationReponse result = userService.changePassword(email, password, otp);
-
-        // Then
-        assertNotNull(result);
-        assertEquals("newToken", result.getToken());
-    }
 
     @Test
     void resetPassword_UserNotFound_ThrowsRuntimeException() {
         // Given
         String email = "example@example.com";
+        String otp = "123456";
         when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
 
         // When / Then
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> userService.resetPassword(email));
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> userService.resetPassword(email,otp));
         assertEquals("User not found with this email: " + email, exception.getMessage());
     }
 
@@ -351,16 +298,18 @@ class AuthenticationServiceTest {
     void resetPassword_InvalidEmail_ThrowsException() {
         // Given
         String email = "example@example.com";
+        String otp = "123456";
 
         when(userRepository.findByEmail(eq(email))).thenReturn(Optional.empty());
 
         // When, Then
-        assertThrows(RuntimeException.class, () -> userService.resetPassword(email));
+        assertThrows(RuntimeException.class, () -> userService.resetPassword(email,otp));
     }
     @Test
     void resetPassword_EmailSendingFailure_ThrowsException() throws MessagingException {
         // Given
         String email = "example@example.com";
+        String otp = "123456";
         User user = new User();
         user.setEmail(email);
 
@@ -368,7 +317,7 @@ class AuthenticationServiceTest {
         doThrow(MessagingException.class).when(emailUtil).sendPassEmail(eq(email), anyString());
 
         // When, Then
-        assertThrows(RuntimeException.class, () -> userService.resetPassword(email));
+        assertThrows(RuntimeException.class, () -> userService.resetPassword(email,otp));
     }
 
 

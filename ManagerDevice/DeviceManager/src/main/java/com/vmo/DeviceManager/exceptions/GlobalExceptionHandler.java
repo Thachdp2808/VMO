@@ -48,6 +48,12 @@ public class GlobalExceptionHandler {
         return createResponseDetail(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(EmailException.class)
+    public ResponseEntity<Object> emailExceptionHandler(EmailException ex, HttpServletRequest request) {
+        log.warn(buildLogMessage("Email", ex.getMessage(), request));
+        return createResponseDetail(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(PagingException.class)
     public ResponseEntity<Object> PagingExceptionHandler(PagingException ex, HttpServletRequest request) {
         log.warn(buildLogMessage("Paging", ex.getMessage(), request));

@@ -1,9 +1,6 @@
 package com.vmo.DeviceManager.services.implement;
 
-import com.vmo.DeviceManager.exceptions.model.CategoryException;
-import com.vmo.DeviceManager.exceptions.model.DeviceException;
-import com.vmo.DeviceManager.exceptions.model.PagingException;
-import com.vmo.DeviceManager.exceptions.model.RequestException;
+import com.vmo.DeviceManager.exceptions.model.*;
 import com.vmo.DeviceManager.models.Device;
 import com.vmo.DeviceManager.models.Request;
 import com.vmo.DeviceManager.models.RequestDetail;
@@ -342,14 +339,9 @@ public class RequestServiceImpl implements RequestService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
 
-        // Kiểm tra quyền của người dùng
-        if (currentUser.getRole() == Erole.USER) {
-            return "Access denied";
-        }
-
         Request requestToReject = getRequestById(requestId);
         if (requestToReject == null) {
-            return "Request not found";
+            throw new RequestException("Request not found") ;
         }
 
         requestToReject.setStatus(EstatusRequest.Rejected);

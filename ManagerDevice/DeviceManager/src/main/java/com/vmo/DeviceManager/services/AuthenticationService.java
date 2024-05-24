@@ -1,5 +1,7 @@
 package com.vmo.DeviceManager.services;
 
+import com.vmo.DeviceManager.exceptions.model.EmailException;
+import com.vmo.DeviceManager.exceptions.model.UserException;
 import com.vmo.DeviceManager.jwt.AuthRequest;
 import com.vmo.DeviceManager.jwt.JwtAuthenticationReponse;
 import com.vmo.DeviceManager.jwt.SigninAuthen;
@@ -36,60 +38,71 @@ public class AuthenticationService {
 
     private final JwtService jwtService;
 
-    public User signup(AuthRequest authRequest){
+    public User saveUser(AuthRequest authRequest){
         Optional<User> existingUser = userRepository.findByEmail(authRequest.getEmail());
         if (existingUser.isPresent()) {
-            throw new RuntimeException("Email already exists");
+            throw new UserException("Email already exists");
         }
-        String otp = otpUtil.generateOtp();
-        try {
-            emailUtil.sendOtpEmail(authRequest.getEmail(), otp);
-        } catch (MessagingException e) {
-            throw new RuntimeException("Unable to send otp please try again");
-        }
+
         User user = new User();
         user.setEmail(authRequest.getEmail());
         user.setFirstName(authRequest.getFirstName());
         user.setLastName(authRequest.getLastName());
-        user.setPassword(passwordEncoder.encode(authRequest.getPassword()));
+        String newPass = generateRandomPassword(15);
+        user.setPassword(passwordEncoder.encode(newPass));
         Department department = departmentService.findById(authRequest.getDepartmentId());
         user.setDepartment(department);
-        user.setStatus(EstatusUser.Deactive);
-        user.setOtp(otp);
-        user.setOtpTime(LocalDateTime.now());
+        user.setStatus(EstatusUser.Active);
         user.setRole(Erole.USER);
-        return userRepository.save(user);
-    }
-    public String verifyAccount(String email, String otp) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found with this email: " + email));
-        if (user.getOtp().equals(otp) && Duration.between(user.getOtpTime(),
-                LocalDateTime.now()).getSeconds() < (1 * 60)) {
-            user.setStatus(EstatusUser.Active);
-            userRepository.save(user);
-            return "OTP verified you can login";
+        try {
+            emailUtil.sendNewUser(authRequest.getEmail(), newPass);
+        } catch (MessagingException e) {
+            throw new EmailException("Unable to send email please try again");
         }
-        return "Please regenerate otp and try again";
+        return userRepository.save(user);
     }
     public String regenerateOtp(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found with this email: " + email));
+                .orElseThrow(() -> new UserException("User not found with this email: " + email));
         String otp = otpUtil.generateOtp();
         try {
             emailUtil.sendOtpEmail(email, otp);
         } catch (MessagingException e) {
-            throw new RuntimeException("Unable to send otp please try again");
+            throw new EmailException("Unable to send otp please try again");
         }
         user.setOtp(otp);
         user.setOtpTime(LocalDateTime.now());
         userRepository.save(user);
         return "Email sent... please check account within 1 minute";
     }
+    public String resetPassword(String email, String otp) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserException("User not found with this email: " + email));
+        if (user.getOtp().equals(otp) && Duration.between(user.getOtpTime(),
+                LocalDateTime.now()).getSeconds() < (1 * 60)) {
+            String newPass = generateRandomPassword(15);
+            String password = passwordEncoder.encode(newPass);
+            try {
+                emailUtil.sendPassEmail(email, newPass);
+            } catch (MessagingException e) {
+                throw new EmailException("Unable to send password please try again");
+            }
+            var jwt = jwtService.generateToken(user);
+            JwtAuthenticationReponse jwtAuthenticationReponse = new JwtAuthenticationReponse();
+            jwtAuthenticationReponse.setToken(jwt);
+            user.setPassword(password);
+            //Set token mới không để nêếu đang dùng thì sẽ không dùng token cũ để sử dụng được
+            user.setToken(jwtAuthenticationReponse.getToken());
+            userRepository.save(user);
+            return "OTP verified password can reset";
+        }
+        return "Please regenerate otp and try again";
+    }
 
     public JwtAuthenticationReponse signin(SigninAuthen signinAuthen){
-        var user = userRepository.findByEmail(signinAuthen.getEmail()).orElseThrow(() -> new IllegalArgumentException("In valid email or password"));
+        var user = userRepository.findByEmail(signinAuthen.getEmail()).orElseThrow(() -> new UserException("In valid email or password"));
         if (user.getStatus() == EstatusUser.Deactive) {
-            throw new IllegalArgumentException("User account is deactivated");
+            throw new UserException("User account is deactivated");
         }
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signinAuthen.getEmail(),signinAuthen.getPassword()));
         var jwt = jwtService.generateToken(user);
@@ -101,41 +114,6 @@ public class AuthenticationService {
         return jwtAuthenticationReponse;
     }
 
-
-
-    public JwtAuthenticationReponse changePassword(String email, String password, String otp) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found with this email: " + email));
-        JwtAuthenticationReponse jwtAuthenticationReponse = new JwtAuthenticationReponse();
-        if (user.getOtp().equals(otp) && Duration.between(user.getOtpTime(),
-                LocalDateTime.now()).getSeconds() < (1 * 60)) {
-            user.setPassword(passwordEncoder.encode(password));
-            var jwt = jwtService.generateToken(user);
-            jwtAuthenticationReponse.setToken(jwt);
-            user.setToken(jwtAuthenticationReponse.getToken());
-            userRepository.save(user);
-        }
-        return jwtAuthenticationReponse;
-    }
-
-    public String resetPassword(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found with this email: " + email));
-        String newPass = generateRandomPassword(15);
-        String password = passwordEncoder.encode(newPass);
-        try {
-            emailUtil.sendPassEmail(email, newPass);
-        } catch (MessagingException e) {
-            throw new RuntimeException("Unable to send password please try again");
-        }
-        var jwt = jwtService.generateToken(user);
-        JwtAuthenticationReponse jwtAuthenticationReponse = new JwtAuthenticationReponse();
-        jwtAuthenticationReponse.setToken(jwt);
-        user.setPassword(password);
-        user.setToken(jwtAuthenticationReponse.getToken());
-        userRepository.save(user);
-        return "New password sent your email... please check account within 1 minute";
-    }
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
 
     public static String generateRandomPassword(int length) {

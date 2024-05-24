@@ -1,13 +1,9 @@
 package com.vmo.DeviceManager.services;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.vmo.DeviceManager.models.Device;
 import com.vmo.DeviceManager.models.User;
 import com.vmo.DeviceManager.repositories.DeviceRepository;
-import com.vmo.DeviceManager.repositories.ImageDeviceRepository;
-import com.vmo.DeviceManager.repositories.ImageUserRepository;
 import com.vmo.DeviceManager.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,13 +14,11 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)

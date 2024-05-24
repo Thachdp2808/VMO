@@ -1,10 +1,12 @@
 package com.vmo.DeviceManager.filter;
 
+import com.vmo.DeviceManager.exceptions.model.UnauthorizedException;
 import com.vmo.DeviceManager.exceptions.model.UserException;
 import com.vmo.DeviceManager.models.User;
 import com.vmo.DeviceManager.repositories.UserRepository;
 import com.vmo.DeviceManager.services.JwtService;
 import com.vmo.DeviceManager.services.UserDetailService;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,25 +41,32 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
         token = authHeader.substring(7);
-        useremail = jwtService.extractUsername(token);
+        try{
+            useremail = jwtService.extractUsername(token);
+        }catch (ExpiredJwtException u){
+            response.setStatus(401);
+            response.getWriter().print("No bearer token");
+            return;
+        }
 
         if (!StringUtils.isEmpty(useremail) && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailService.userDetailsService().loadUserByUsername(useremail);
-            if (jwtService.validateToken(token, userDetails)) {
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                System.out.println(userDetails.getAuthorities());
-                System.out.println(userDetails.getUsername());
-                User user = userRepository.findByEmail(userDetails.getUsername())
-                        .orElseThrow(() -> new UserException(userDetails.getUsername()));
-                System.out.print(user.getToken());
-                if(user.getToken()==null || user.getToken().isEmpty()  ){
-                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-                    return;
+
+                if (jwtService.validateToken(token, userDetails)) {
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    System.out.println(userDetails.getAuthorities());
+                    System.out.println(userDetails.getUsername());
+                    User user = userRepository.findByEmail(userDetails.getUsername())
+                            .orElseThrow(() -> new UserException(userDetails.getUsername()));
+                    System.out.print(user.getToken());
+                    if(user.getToken()==null || user.getToken().isEmpty()  ){
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                        return;
+                    }
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    System.out.println(authToken.getAuthorities().toString());
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                System.out.println(authToken.getAuthorities().toString());
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-            }
         }
         filterChain.doFilter(request, response);
     }

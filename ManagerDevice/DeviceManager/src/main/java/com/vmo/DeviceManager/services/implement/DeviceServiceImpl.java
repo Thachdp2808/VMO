@@ -150,45 +150,44 @@ public class DeviceServiceImpl implements DeviceService {
         List<Object[]> typeDeviceList = deviceRepository.countDeviceByType();
         StringBuilder dashboard = new StringBuilder();
         String categoryName;
-        Long countCategory ;
-        dashboard.append("====== Category Device ======").append("\n");
+        Long countCategory;
+
+        // Append headers for CSV
+        dashboard.append("Category,Count").append("\n");
         for (Object[] result : categoryDeviceList) {
             categoryName = (String) result[0];
             countCategory = (Long) result[1];
-            dashboard.append("Number of ").append(categoryName).append(" devices: ").append(countCategory).append("\n");
+            dashboard.append(categoryName).append(",").append(countCategory).append("\n");
         }
 
+        dashboard.append("\n").append("Type,Count").append("\n");
         String typeName;
-        Long countType ;
-        dashboard.append("====== Type Device ======").append("\n");
+        Long countType;
         for (Object[] result : typeDeviceList) {
             typeName = (String) result[0];
             countType = (Long) result[1];
-            dashboard.append("Number of ").append(typeName).append(" devices: ").append(countType).append("\n");
+            dashboard.append(typeName).append(",").append(countType).append("\n");
         }
-        dashboard.append("====== Status Device ======").append("\n");
+
+        dashboard.append("\n").append("Status,Count").append("\n");
         if (devices.isEmpty()) {
             throw new DeviceException("No devices found");
         }
-        for(Device device: devices){
-            if(device.getStatus() == EstatusDevice.Availability){
+        for (Device device : devices) {
+            if (device.getStatus() == EstatusDevice.Availability) {
                 countAvail++;
-            }
-            if(device.getStatus() == EstatusDevice.Utilized){
+            } else if (device.getStatus() == EstatusDevice.Utilized) {
                 countUltil++;
-            }
-            if(device.getStatus() == EstatusDevice.Maintenance){
+            } else if (device.getStatus() == EstatusDevice.Maintenance) {
                 countMainten++;
             }
         }
-        dashboard.append("Number of availability devices: ").append(countAvail).append("\n")
-                .append("Number of utilized devices: ").append(countUltil).append("\n")
-                .append("Number of maintenance devices: ").append(countMainten);
+        dashboard.append("Availability,").append(countAvail).append("\n")
+                .append("Utilized,").append(countUltil).append("\n")
+                .append("Maintenance,").append(countMainten).append("\n");
+
         return dashboard.toString();
     }
-
-
-
 
     @Override
     public Page<Device> pageAndSearch(String keyword,List<String> status, List<String> category, List<String> type, Integer pageNo, Integer pageSize) {

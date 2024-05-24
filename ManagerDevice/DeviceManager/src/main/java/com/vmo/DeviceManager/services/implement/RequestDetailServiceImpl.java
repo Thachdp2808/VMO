@@ -42,15 +42,18 @@ public class RequestDetailServiceImpl implements RequestDetailService {
     @Override
     public String getDurationDay() {
         List<Object[]> durationDayList = requestDetailRepository.getDurationDay();
-        int devieId;
+        int deviceId;
         String deviceName;
         BigDecimal duraDay;
         StringBuilder dashboard = new StringBuilder();
+
+        // Append headers for CSV
+        dashboard.append("Device ID,Device Name,Duration Days").append("\n");
         for (Object[] result : durationDayList) {
-            devieId = (Integer) result[0];
+            deviceId = (Integer) result[0];
             deviceName = (String) result[1];
             duraDay = (BigDecimal) result[2];
-            dashboard.append("Duration day of devices: ").append(devieId ).append(": ").append(deviceName).append(": ").append(duraDay).append(" day.").append("\n");
+            dashboard.append(deviceId).append(",").append(deviceName).append(",").append(duraDay).append("\n");
         }
         return dashboard.toString();
     }
@@ -64,7 +67,7 @@ public class RequestDetailServiceImpl implements RequestDetailService {
         LocalDateTime currentTime = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
         String timestamp = currentTime.format(formatter);
-        String fileName = "Dashboard_" + timestamp + ".txt"; // Tên file mới
+        String fileName = "Dashboard_" + timestamp + ".csv"; // Tên file mới
         // Tạo và lưu trữ file trên AWS S3
         String fileUrl = service.UploadFileDashboard(fileName, fileContent);
 

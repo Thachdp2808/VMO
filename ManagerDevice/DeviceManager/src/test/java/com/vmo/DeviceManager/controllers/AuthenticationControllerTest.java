@@ -51,13 +51,13 @@ class AuthenticationControllerTest {
         String otp = "123456";
 
         // Mock the service method call
-        Mockito.when(authenticationService.verifyAccount(Mockito.anyString(), Mockito.anyString())).thenReturn("Verification successful");
+        Mockito.when(authenticationService.resetPassword(Mockito.anyString(), Mockito.anyString())).thenReturn("Verification successful");
 
         // Call the controller method
         ResponseEntity<String> responseEntity = authenticationController.verifyAccount(email, otp);
 
         // Verify that the service method was called with the correct arguments
-        Mockito.verify(authenticationService).verifyAccount(email, otp);
+        Mockito.verify(authenticationService).resetPassword(email, otp);
 
         // Verify that the controller returns a ResponseEntity with status code 200 OK
         Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
@@ -110,50 +110,7 @@ class AuthenticationControllerTest {
         Assert.assertEquals("token", responseBody.getToken());
     }
 
-    @Test
-    void changePassword() {
-        String email = "example@example.com";
-        String otp = "123456";
-        SigninAuthen signinAuthen = new SigninAuthen("newEmail","newPassword");
-        JwtAuthenticationReponse jwtAuthenticationReponse = new JwtAuthenticationReponse();
 
-        // Mock the service method call
-        Mockito.when(authenticationService.changePassword(email, signinAuthen.getPassword(), otp)).thenReturn(jwtAuthenticationReponse);
 
-        // Call the controller method
-        ResponseEntity<?> responseEntity = authenticationController.changePassword(email, otp, signinAuthen);
 
-        // Verify that the service method was called with the correct arguments
-        Mockito.verify(authenticationService).changePassword(email, signinAuthen.getPassword(), otp);
-
-        // Verify that the controller returns a ResponseEntity with status code 200 OK
-        Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-
-        // Verify the response body
-        JwtAuthenticationReponse responseBody = (JwtAuthenticationReponse) responseEntity.getBody();
-        Assert.assertEquals(jwtAuthenticationReponse, responseBody);
-    }
-
-    @Test
-    void testResetPassword() {
-        String email = "example@example.com";
-        String newPassword = "newPassword";
-        String resetPasswordResponse = "Password reset successful"; // Assuming this is the response from the service
-
-        // Mock the service method call
-        Mockito.when(authenticationService.resetPassword(email)).thenReturn(resetPasswordResponse);
-
-        // Call the controller method
-        ResponseEntity<?> responseEntity = authenticationController.resetPassword(email);
-
-        // Verify that the service method was called with the correct argument
-        Mockito.verify(authenticationService).resetPassword(email);
-
-        // Verify that the controller returns a ResponseEntity with status code 200 OK
-        Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-
-        // Verify the response body
-        String responseBody = (String) responseEntity.getBody();
-        Assert.assertEquals(resetPasswordResponse, responseBody);
-    }
 }

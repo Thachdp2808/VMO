@@ -55,8 +55,7 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "userCreated", fetch = FetchType.EAGER, cascade=CascadeType.ALL)
     @JsonIgnore
     private List<Request> requestCreated;
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
-    private List<ImageUser> images;
+    private String images;
 
     @Override
     public String toString() {
@@ -71,8 +70,6 @@ public class User implements UserDetails {
                 ", jobTitle='" + jobTitle + '\'' +
                 ", role=" + role +
                 ", status=" + status +
-                ", otp='" + otp + '\'' +
-                ", otpTime=" + otpTime +
                 ", department=" + department.getDepartmentId() +
                 ", requestCreated=" + requestCreated +
                 ", images=" + images +

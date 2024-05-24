@@ -3,6 +3,7 @@ package com.vmo.DeviceManager.controllers;
 import com.vmo.DeviceManager.jwt.AuthRequest;
 import com.vmo.DeviceManager.models.Device;
 import com.vmo.DeviceManager.models.Request;
+import com.vmo.DeviceManager.models.User;
 import com.vmo.DeviceManager.models.dto.DeviceDto;
 import com.vmo.DeviceManager.models.dto.UserDto;
 import com.vmo.DeviceManager.services.*;
@@ -26,6 +27,7 @@ public class AdminController {
     private final RequestDetailService requestDetailService;
     private final DeviceService deviceService;
     private final DepartmentService departmentService;
+    private final AuthenticationService authenticationService;
 
     @GetMapping
     public ResponseEntity<String> sayHello(){
@@ -94,6 +96,10 @@ public class AdminController {
     @PutMapping("/update-users/{id}")
     public ResponseEntity<?> updateProfile(@PathVariable int id, @RequestBody AuthRequest authRequest){
         return ResponseEntity.ok(userService.updateUserById(id, authRequest));
+    }
+    @PostMapping("/users")
+    public ResponseEntity<User> createUser(@RequestBody AuthRequest authRequest){
+        return ResponseEntity.ok(authenticationService.saveUser(authRequest));
     }
 
 }

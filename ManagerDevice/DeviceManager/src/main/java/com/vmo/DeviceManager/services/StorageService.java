@@ -6,15 +6,12 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.util.IOUtils;
+import com.vmo.DeviceManager.exceptions.model.DeviceException;
+import com.vmo.DeviceManager.exceptions.model.UserException;
 import com.vmo.DeviceManager.models.Device;
-import com.vmo.DeviceManager.models.ImageDevice;
-import com.vmo.DeviceManager.models.ImageUser;
 import com.vmo.DeviceManager.models.User;
 import com.vmo.DeviceManager.repositories.DeviceRepository;
-import com.vmo.DeviceManager.repositories.ImageDeviceRepository;
-import com.vmo.DeviceManager.repositories.ImageUserRepository;
 import com.vmo.DeviceManager.repositories.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,12 +32,6 @@ public class StorageService {
     private AmazonS3 amazonS3;
 
     @Autowired
-    private ImageDeviceRepository imageDeviceRepository;
-
-    @Autowired
-    private ImageUserRepository imageUserRepository;
-
-    @Autowired
     private DeviceRepository deviceRepository;
 
     @Autowired
@@ -53,10 +44,10 @@ public class StorageService {
         fileObj.delete();
 
         if(type.equals("device")){
-            saveImageDevice(fileName, id);
+            saveImageDevice(amazonS3.getUrl(bucketName, fileName).toString(), id);
         }
         if(type.equals("user")){
-            saveImageUser(fileName, id);
+            saveImageUser(amazonS3.getUrl(bucketName, fileName).toString(), id);
         }
 
         return amazonS3.getUrl(bucketName, fileName).toString();
@@ -71,22 +62,15 @@ public class StorageService {
     }
 
     private void saveImageDevice(String fileName, int id){
-        ImageDevice imageDevice = new ImageDevice();
-        imageDevice.setImageLink(fileName);
-        imageDevice.setName(fileName);
-        Device Device = deviceRepository.findById(id).orElseThrow(() -> new RuntimeException("Device does not exits"));
-        imageDevice.setImageDevice(Device);
-        imageDeviceRepository.save(imageDevice);
+        Device device = deviceRepository.findById(id).orElseThrow(()-> new DeviceException(id));
+        device.setImages(fileName);
+        deviceRepository.save(device);
     }
 
     private void saveImageUser(String fileName, int id){
-        ImageUser imageUser = new ImageUser();
-        imageUser.setImageLink(fileName);
-        imageUser.setName(fileName);
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
-        imageUser.setUser(user);
-        imageUserRepository.save(imageUser);
+        User user = userRepository.findById(id).orElseThrow(()-> new UserException(id));
+        user.setImages(fileName);
+        userRepository.save(user);
     }
 
 

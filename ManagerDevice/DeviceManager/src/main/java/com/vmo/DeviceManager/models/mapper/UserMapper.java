@@ -19,6 +19,7 @@ public class UserMapper {
         tmp.setStatus(user.getStatus());
         tmp.setRole(user.getRole());
         tmp.setDepartment(user.getDepartment());
+        tmp.setImage(user.getImages());
         return tmp;
     }
 }
