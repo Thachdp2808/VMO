@@ -41,11 +41,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
         token = authHeader.substring(7);
+        //Ném ra lỗi 401 nếu như hết hạn token
         try{
             useremail = jwtService.extractUsername(token);
         }catch (ExpiredJwtException u){
             response.setStatus(401);
-            response.getWriter().print("No bearer token");
+            response.getWriter().print("Unauthorized");
             return;
         }
 

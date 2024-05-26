@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState,  useRef  } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { putUser, getUser } from '../../services/DeviceService';
+import { putUser, getUser, postUploadImage } from '../../services/DeviceService';
 
 const ModalUpdateProfile = (props) => {
     const { show, handleClose } = props;
@@ -16,6 +16,7 @@ const ModalUpdateProfile = (props) => {
     const [role, setRole] = useState("");
     const [password, setPassword] = useState("");
     const [departmentId, setDepartmentId] = useState("");
+    const [image, setImage] = useState("");
     const [isPasswordChanged, setIsPasswordChanged] = useState(false);
 
     useEffect(() => {
@@ -32,7 +33,6 @@ const ModalUpdateProfile = (props) => {
         }
     }, [show]);
 
-    console.log("User", departmentId);
 
     useEffect(() => {
         if (show) {
@@ -43,20 +43,43 @@ const ModalUpdateProfile = (props) => {
             setRole(user.role)
             setStatus(user.status)
             setPassword(user.password)
+            setImage(user.image)
             setDepartmentId(user.department.departmentId)
+
         }
 
     }, [user])
-
     const handlePasswordChange = (event) => {
         setPassword(event.target.value);
         setIsPasswordChanged(true);
+    };
+
+    const fileInputRef = useRef(null);
+
+    const handleButtonClick = () => {
+        fileInputRef.current.click();
+    };
+
+    const handleFileChange = async (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            console.log("Selected file:", file);
+            const res = await postUploadImage(1,'user',file);
+            if (res) {
+                handleClose();
+                toast.success("Image update success")
+            } else {
+                toast.error("Image update failed")
+            }
+            // Xử lý tệp đã chọn ở đây
+        }else {
+            toast.error("Image update failed")
+        }
     };
     const handleEditUser = async (userId) => {
         // Gọi hàm lưu hoặc gửi finalPassword đến API của bạn.
         const finalPassword = isPasswordChanged ? password : null;
         let res = await putUser(firstName, lastName, phone, status, role, finalPassword, departmentId);
-        console.log(password)
         if (res) {
             handleClose();
             toast.success("User update success")
@@ -72,9 +95,25 @@ const ModalUpdateProfile = (props) => {
                 </Modal.Header>
                 <Modal.Body>
                     <div className='body-add-device'>
-                        <div className="mb-3">
-                            <label className="form-label">First Name</label>
-                            <img src="https://tdevice-manager.s3.ap-southeast-2.amazonaws.com/Ava-CV.png" alt="Description of image" />
+                        <div className="mb-3 text-center">
+                            <div className="mb-3">
+                                <img
+                                    className="rounded"
+                                    style={{ width: '100px', marginBottom: '10px' }}
+                                    src={image}
+                                    alt="Description of image"
+                                />
+                            </div>
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                style={{ display: 'none' }}
+                                onChange={handleFileChange}
+                            />
+                            <Button variant="secondary" onClick={handleButtonClick}>
+                                Upload File
+                            </Button>
+
                         </div>
 
                         <div className="mb-3">

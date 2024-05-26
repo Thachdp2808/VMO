@@ -14,8 +14,6 @@ const ModalAddRequest = (props) => {
     const [endDate, setEndDate] = useState("");
     const [errors, setErrors] = useState({});
 
-    console.log("data", deviceSave);
-
     useEffect(() => {
         const fetchData = async () => {
             try {

@@ -30,7 +30,6 @@ const TableUser = () => {
 
     const getUser = async (keyword, pageNo, pageSize) => {
         let res = await fetchAllUser(keyword, pageNo, pageSize);
-        console.log("Check user",res)
         
         if (res && res.content) {
             setListUser(res.content)
@@ -64,45 +63,13 @@ const TableUser = () => {
     
       }
 
-    //   const getUserExport = (event, done) => {
-    //     let result = [];
-    //     if (listUser && listUser.length > 0) {
-    //       result.push(["ID", "Device Name", "Price", "Status", "Category Name", "Category Type"])
-    //       listUser.map((item, index) => {
-    //         let arr = [];
-    //         arr[0] = item.deviceId
-    //         arr[1] = item.deviceName
-    //         arr[2] = item.price
-    //         arr[3] = item.status
-    //         arr[4] = item.category.categoryName
-    //         arr[5] = item.category.type
-    //         result.push(arr);
-    //       })
-    
-    //       setDataExport(result);
-    //       done();
-    //     }
-    //   }
-
 
     return (<>
         <div className="my-3 add-device">
             <b>List User</b>
-            <div>
-                {/* <CSVLink
-                    data={dataExport}
-                    filename={"users.csv"}
-                    className="btn btn-primary"
-                    asyncOnClick={true}
-                    onClick={(event, done) => getUserExport(event, done)}
-                >
-                    <i className="fa-solid fa-file-arrow-down"></i> Export
-                </CSVLink> */}
-                {/* <button style={{ marginLeft: '10px' }} className="btn btn-success" onClick={() => setIsShowModalAddUser(true)}>
-                    <i className="fa-solid fa-circle-plus"></i> Add User
-                </button> */}
-            </div>
-
+            <button style={{ marginLeft: '10px' }} className="btn btn-success" onClick={() => setIsShowModalAddUser(true)}>
+          <i className="fa-solid fa-circle-plus"></i> Add User
+        </button>
         </div>
         <div className='col-3 my-3'>
             <input className='form-control' placeholder='Search user by name.....'
@@ -163,10 +130,10 @@ const TableUser = () => {
             activeClassName="active"
         />
 
-        {/* <ModalAddUser
+        <ModalAddUser
             show={isShowModalAddUser}
             handleClose={handleClose}
-        /> */}
+        />
         <ModalEditUser
             show={isShowModalEditUser}
             dataUser={dataUser}

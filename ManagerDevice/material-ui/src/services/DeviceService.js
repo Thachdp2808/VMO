@@ -38,6 +38,20 @@ const getUser = () => {
     });
 }
 
+const postUser = async (email, firstName, lastName, departmentId) => {
+    try {
+        return await axios.post(`/api/v1/admin/users`, { email, firstName, lastName, departmentId}, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            }
+        })
+    } catch (error) {
+        console.error('Error fetching requests:', error.response.data.error);
+        return error.response.data.error;
+    }
+   
+}
+
 const putUser = ( firstName, lastName, phone, status, role, password, departmentId) => {
     return axios.put(`/api/v1/profile/users`, {firstName, lastName, phone, status, role, password, departmentId}, {
         headers: {
@@ -74,6 +88,17 @@ const getAllDepartment = () => {
 const getDashboard = () => {
     return axios.get(`/api/v1/admin/upload-file-dashboard`, {
         headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        }
+    });
+}
+
+const postUploadImage = (id, type, file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return axios.post(`/api/v1/file/upload/${id}?type=${type}`,formData,{
+        headers: {
+            'Content-Type': 'multipart/form-data',
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
         }
     });
@@ -173,12 +198,37 @@ const putUpdateRequest = (requestId, reason, deviceIds, start, end) => {
     })
 }
 
-const loginAPI = (email, password) => {
-    return axios.post(`/api/v1/authentication/signin`, { email, password })
+const loginAPI = async (email, password) => {
+    try {
+        return await axios.post(`/api/v1/authentication/signin`, { email, password })
+    } catch (error) {
+        console.error('Error fetching requests:', error.response.data.error);
+        return error.response.data.error;
+    }
+    
+}
+
+const putVerify = async (email) => {
+    try {
+        return await axios.put(`/api/v1/authentication/regenerate-otp?email=${email}`)
+    } catch (error) {
+        console.error('Error fetching requests:', error.response.data.error);
+        return error.response.data.error;
+    }  
+}
+
+const putResetPassword = async (email, otp) => {
+    try {
+        return await axios.put(`/api/v1/authentication/reset-password?email=${email}&otp=${otp}`)
+    } catch (error) {
+        console.error('Error fetching requests:', error.response.data.error);
+        return error.response.data.error;
+    }  
 }
 
 export {
     fetchAllDevice, getAllCategory, postSaveDevice, putUpdateDevice, loginAPI, getUser, fetchAllUser,
     putSaveUser, logoutAccount, getAllDepartment, getRequestByCreated, postSendRequest, postAddRequest,
-    getRequestAdmin, postApprove, postReject, putUpdateRequest, postReturnDevice, putUser, getDashboard
+    getRequestAdmin, postApprove, postReject, putUpdateRequest, postReturnDevice, putUser, getDashboard,
+    postUploadImage, postUser, putVerify, putResetPassword
 };

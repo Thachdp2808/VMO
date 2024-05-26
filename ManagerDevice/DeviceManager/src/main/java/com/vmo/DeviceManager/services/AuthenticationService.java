@@ -15,6 +15,7 @@ import com.vmo.DeviceManager.utils.OtpUtil;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -104,7 +105,11 @@ public class AuthenticationService {
         if (user.getStatus() == EstatusUser.Deactive) {
             throw new UserException("User account is deactivated");
         }
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signinAuthen.getEmail(),signinAuthen.getPassword()));
+        try{
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signinAuthen.getEmail(),signinAuthen.getPassword()));
+        }catch (BadCredentialsException u){
+            throw new UserException("Incorrect email or password");
+        }
         var jwt = jwtService.generateToken(user);
         JwtAuthenticationReponse jwtAuthenticationReponse = new JwtAuthenticationReponse();
         jwtAuthenticationReponse.setToken(jwt);

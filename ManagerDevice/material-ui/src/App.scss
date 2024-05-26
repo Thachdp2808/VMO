@@ -100,3 +100,14 @@ code {
     }
   }
 }
+
+.otp-container {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Optional: Adjust spacing between input and button */
+}
+
+.otp-container button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

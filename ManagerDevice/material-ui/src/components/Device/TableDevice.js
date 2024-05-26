@@ -53,7 +53,7 @@ const TableDevices = (props) => {
 
     fetchData();
   }, []); // Empty dependency array ensures this effect runs only once after initial render
-  console.log(user);
+
   useEffect(() => {
     getDevice(keyword, 1, 4, type, category, status);
   }, [])
@@ -116,8 +116,13 @@ const TableDevices = (props) => {
     });
 
   }
-  const uniqueTypes = [...new Set(listCategory.map(item => item.type))];
-  const uniqueCategories = [...new Set(listCategory.map(item => item.categoryName))];
+
+  const uniqueTypes = Array.isArray(listCategory)
+  ? [...new Set(listCategory.map(item => item.type))]
+  : [];
+  const uniqueCategories = Array.isArray(listCategory)
+        ? [...new Set(listCategory.map(item => item.categoryName))]
+        : [];
   function formatPrice(price) {
     // Chuyển đổi giá thành chuỗi và thêm dấu phẩy phân cách hàng nghìn
     const formattedPrice = price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
