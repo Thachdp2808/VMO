@@ -6,9 +6,9 @@ import com.vmo.DeviceManager.models.Request;
 import com.vmo.DeviceManager.models.RequestDetail;
 import com.vmo.DeviceManager.models.User;
 import com.vmo.DeviceManager.models.dto.RequestDto;
-import com.vmo.DeviceManager.models.enumEntity.Erole;
 import com.vmo.DeviceManager.models.enumEntity.EstatusDevice;
 import com.vmo.DeviceManager.models.enumEntity.EstatusRequest;
+import com.vmo.DeviceManager.models.event.RequestEvent;
 import com.vmo.DeviceManager.repositories.DeviceRepository;
 import com.vmo.DeviceManager.repositories.RequestDetailRepository;
 import com.vmo.DeviceManager.repositories.RequestRepository;
@@ -16,15 +16,14 @@ import com.vmo.DeviceManager.repositories.UserRepository;
 import com.vmo.DeviceManager.services.DeviceService;
 import com.vmo.DeviceManager.services.RequestService;
 import org.springframework.beans.BeanUtils;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
 import java.time.LocalDate;
@@ -44,18 +43,21 @@ public class RequestServiceImpl implements RequestService {
 
     private final RequestDetailRepository requestDetailRepository;
 
+    private final ApplicationEventPublisher eventPublisher;
+
     private List<Request> pendingRequests = new ArrayList<>();
 
     private List<Request> requestsToSave = new ArrayList<>();
     private int lastInsertedRequestId;
     private final Object lock = new Object();
 
-    public RequestServiceImpl(RequestRepository requestRepository, UserRepository userRepository, DeviceService deviceService, DeviceRepository deviceRepository, RequestDetailRepository requestDetailRepository) {
+    public RequestServiceImpl(RequestRepository requestRepository, UserRepository userRepository, DeviceService deviceService, DeviceRepository deviceRepository, RequestDetailRepository requestDetailRepository, ApplicationEventPublisher eventPublisher) {
         this.requestRepository = requestRepository;
         this.userRepository = userRepository;
         this.deviceService = deviceService;
         this.deviceRepository = deviceRepository;
         this.requestDetailRepository = requestDetailRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -83,7 +85,6 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    @Transactional
     public String updateRequest(int requestId, RequestDto requestDto) {
         // Tìm kiếm yêu cầu tồn tại dựa trên requestId
         Request exitRequest = null;
@@ -113,12 +114,6 @@ public class RequestServiceImpl implements RequestService {
 
         // Kiểm tra và xác thực thời gian của request
         requestDto.validateTime();
-
-        // Lấy danh sách chi tiết yêu cầu (request details) hiện tại của request
-        List<RequestDetail> existingRequestDetails = exitRequest.getRequestDetails();
-        if (existingRequestDetails == null) {
-            existingRequestDetails = new ArrayList<>();
-        }
 
         // Cập nhật chi tiết yêu cầu với các thiết bị mới
         List<RequestDetail> updatedRequestDetails = new ArrayList<>();
@@ -176,9 +171,7 @@ public class RequestServiceImpl implements RequestService {
         }
         int size;
         // Tạo ra Predicate dựa trên keyword, category và type
-        Predicate<Request> predicate = request -> {
-            return status == null || status.isEmpty() || status.contains(request.getStatus().name());
-        };
+        Predicate<Request> predicate = request -> status == null || status.isEmpty() || status.contains(request.getStatus().name());
 
         // Áp dụng Predicate vào danh sách thiết bị
         List<Request> filteredRequests = search(listRequest, predicate);
@@ -271,17 +264,6 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public String sendRequest(int id) {
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        User currentUser = (User) authentication.getPrincipal();
-//        System.out.print(currentUser.getUserId());
-//        for(Request exitsrequest :pendingRequests){
-//            if(currentUser.getUserId() != exitsrequest.getUserCreated().getUserId()){
-//
-//                return "Access Denied" ;
-//            }
-//        }
-
-
         Optional<Request> optionalRequest = pendingRequests.stream()
                 .filter(request -> request.getRequestId() == id)
                 .findFirst();
@@ -289,6 +271,7 @@ public class RequestServiceImpl implements RequestService {
         if (optionalRequest.isPresent()) {
             Request request = optionalRequest.get();
             // Xác nhận yêu cầu và chuyển sang trạng thái "Processing"
+            request.setRequestId(id);
             request.setStatus(EstatusRequest.Processing);
             // Di chuyển yêu cầu vào danh sách chờ lưu vào cơ sở dữ liệu
             requestsToSave.add(request);
@@ -306,27 +289,29 @@ public class RequestServiceImpl implements RequestService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
 
-        // Kiểm tra quyền của người dùng
-        if (currentUser.getRole() == Erole.USER) {
-            return "Access denied";
-        }
-
         Request requestToApprove = getRequestById(requestId);
         if (requestToApprove == null) {
             return "Request not found";
         }
 
+        requestToApprove.setRequestId(requestId);
         requestToApprove.setStatus(EstatusRequest.Approved);
         requestToApprove.setResolveDate(Date.valueOf(currentDate));
         requestToApprove.setUserResolve(currentUser.getUserId());
+
+
         requestRepository.save(requestToApprove);
+        int total = 0;
         List<RequestDetail> requestDetail = requestToApprove.getRequestDetails();
-        requestDetailRepository.saveAll(requestDetail);
+        for(RequestDetail request: requestDetail){
+            total ++;
+            requestDetailRepository.save(request);
+        }
+        if (requestToApprove.getStatus() == EstatusRequest.Approved) {
+            eventPublisher.publishEvent(new RequestEvent(requestToApprove.getUserCreated(), total));
+        }
+        //Sửa lại
         requestsToSave.remove(requestToApprove);
-
-
-
-
         // Cập nhật trạng thái của các thiết bị liên quan
         updateDeviceStatus(requestId, EstatusDevice.Utilized);
 
@@ -343,7 +328,7 @@ public class RequestServiceImpl implements RequestService {
         if (requestToReject == null) {
             throw new RequestException("Request not found") ;
         }
-
+        requestToReject.setRequestId(requestId);
         requestToReject.setStatus(EstatusRequest.Rejected);
         requestToReject.setResolveDate(Date.valueOf(currentDate));
         requestToReject.setUserResolve(currentUser.getUserId());
@@ -384,16 +369,13 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public String deleteRequest(int requestId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = (User) authentication.getPrincipal();
-        pendingRequests.stream()
-                .map(Request::getRequestId)
-                .forEach(System.out::println);
-
-        for (Request request : pendingRequests) {
+        System.out.println(requestId);
+        Iterator<Request> iterator = pendingRequests.iterator();
+        while (iterator.hasNext()) {
+            Request request = iterator.next();
             if (request.getRequestId() == requestId) {
-                pendingRequests.remove(request);
-            } else {
+                iterator.remove(); // Sử dụng Iterator để xóa phần tử an toàn
+            }else{
                 return "Delete request fail";
             }
         }

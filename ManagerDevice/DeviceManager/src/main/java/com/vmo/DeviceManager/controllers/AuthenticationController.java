@@ -5,6 +5,7 @@ import com.vmo.DeviceManager.jwt.JwtAuthenticationReponse;
 import com.vmo.DeviceManager.jwt.SigninAuthen;
 import com.vmo.DeviceManager.models.User;
 import com.vmo.DeviceManager.services.AuthenticationService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +28,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<JwtAuthenticationReponse> signin(@RequestBody SigninAuthen signinAuthen){
+    public ResponseEntity<JwtAuthenticationReponse> signin(@RequestBody @Valid SigninAuthen signinAuthen){
         return ResponseEntity.ok(authenticationService.signin(signinAuthen));
     }
 }

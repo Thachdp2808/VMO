@@ -56,6 +56,11 @@ public class User implements UserDetails {
     @JsonIgnore
     private List<Request> requestCreated;
     private String images;
+    @Column(name = "total_device")
+    private int total_device;
+
+    public User(int i, String username, String mail, String firstName, String lastName) {
+    }
 
     @Override
     public String toString() {

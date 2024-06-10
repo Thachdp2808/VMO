@@ -11,9 +11,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.ArrayList;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -56,15 +58,19 @@ class RequestDetailServiceImplTest {
     @Test
     void getDurationDay() {
         // Mock data
-        int deviceId = 123;
+        List<Object[]> mockData = Arrays.asList(
+                new Object[]{123, "Device A", new BigDecimal("5")},
+                new Object[]{124, "Device B", new BigDecimal("10")}
+        );
 
         // Mock behavior
-        when(requestDetailRepository.getDurationDay());
+        when(requestDetailRepository.getDurationDay()).thenReturn(mockData);
 
         // Call method
         String result = requestDetailService.getDurationDay();
 
         // Verify result
-        assertEquals("Duration day of device: 5 day", result);
+        String expected = "Device ID,Device Name,Duration Days\n123,Device A,5\n124,Device B,10\n";
+        assertEquals(expected, result);
     }
 }

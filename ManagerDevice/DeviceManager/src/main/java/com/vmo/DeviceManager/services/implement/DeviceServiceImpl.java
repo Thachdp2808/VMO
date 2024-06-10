@@ -82,7 +82,6 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     @Override
-    @Transactional
     public String updateDevice(int id, DeviceDto deviceDto) {
         Device exitsDevice = deviceRepository.findById(id)
                 .orElseThrow(() -> new DeviceException(id));
@@ -213,6 +212,9 @@ public class DeviceServiceImpl implements DeviceService {
         // Áp dụng Predicate vào danh sách thiết bị
         List<Device> filteredDevices = search(listDevice, predicate);
         size = filteredDevices.size();
+        if(size == 0){
+            throw new DeviceException("No device found");
+        }
 
         int totalPages = (int) Math.ceil((double) size / pageSize);
         if (pageNo > totalPages) {

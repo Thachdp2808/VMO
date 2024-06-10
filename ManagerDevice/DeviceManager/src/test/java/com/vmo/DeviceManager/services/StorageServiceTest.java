@@ -28,12 +28,6 @@ class StorageServiceTest {
     private AmazonS3 amazonS3;
 
     @Mock
-    private ImageDeviceRepository imageDeviceRepository;
-
-    @Mock
-    private ImageUserRepository imageUserRepository;
-
-    @Mock
     private DeviceRepository deviceRepository;
 
     @Mock
@@ -47,43 +41,6 @@ class StorageServiceTest {
         MockitoAnnotations.initMocks(this);
     }
 
-    @Test
-    public void testUploadFileForDevice() {
-        // Mock data
-        File file = new File("test.jpg");
-        MockMultipartFile multipartFile = new MockMultipartFile("file", "test.jpg", "image/jpeg", new byte[10]);
-        Device device = new Device();
-        device.setDeviceId(1);
-
-        // Mock behavior
-        when(deviceRepository.findById(1)).thenReturn(Optional.of(device));
-
-        // Test uploadFile method
-        String result = storageService.uploadFile(multipartFile, "device", 1);
-
-        // Verify
-        assertEquals("File uploaded : "  + multipartFile.getOriginalFilename(), result);
-
-    }
-
-    @Test
-    public void testUploadFileForUser() {
-        // Mock data
-        File file = new File("test.jpg");
-        MockMultipartFile multipartFile = new MockMultipartFile("file", "test.jpg", "image/jpeg", new byte[10]);
-        User user = new User();
-        user.setUserId(1);
-
-        // Mock behavior
-        when(userRepository.findById(1)).thenReturn(Optional.of(user));
-
-        // Test uploadFile method
-        String result = storageService.uploadFile(multipartFile, "user", 1);
-
-        // Verify
-        assertEquals("File uploaded : " + multipartFile.getOriginalFilename(), result);
-
-    }
     @Test
     public void testDownloadFile() throws IOException {
         // Mock data

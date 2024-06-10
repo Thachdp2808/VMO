@@ -1,5 +1,7 @@
 package com.vmo.DeviceManager.jwt;
 
+import com.vmo.DeviceManager.models.dto.ValidPassword;
+import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,7 +11,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AuthRequest {
     private String username;
+    @ValidPassword
     private String password;
+    @Email(message = "Invalid Email")
     private String email;
     private int phone;
     private String firstName;
@@ -33,4 +37,5 @@ public class AuthRequest {
         }
         // Không cần trim departmentId vì nó là một số nguyên
     }
+
 }

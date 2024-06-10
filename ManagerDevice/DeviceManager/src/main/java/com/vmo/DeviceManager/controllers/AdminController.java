@@ -8,6 +8,7 @@ import com.vmo.DeviceManager.models.dto.DeviceDto;
 import com.vmo.DeviceManager.models.dto.UserDto;
 import com.vmo.DeviceManager.services.*;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -98,7 +99,7 @@ public class AdminController {
         return ResponseEntity.ok(userService.updateUserById(id, authRequest));
     }
     @PostMapping("/users")
-    public ResponseEntity<User> createUser(@RequestBody AuthRequest authRequest){
+    public ResponseEntity<User> createUser(@RequestBody @Valid AuthRequest authRequest){
         return ResponseEntity.ok(authenticationService.saveUser(authRequest));
     }
 

@@ -5,10 +5,7 @@ import com.vmo.DeviceManager.models.Device;
 import com.vmo.DeviceManager.models.Request;
 import com.vmo.DeviceManager.models.User;
 import com.vmo.DeviceManager.models.dto.DeviceDto;
-import com.vmo.DeviceManager.services.DeviceService;
-import com.vmo.DeviceManager.services.RequestDetailService;
-import com.vmo.DeviceManager.services.RequestService;
-import com.vmo.DeviceManager.services.UserService;
+import com.vmo.DeviceManager.services.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,6 +32,8 @@ import static org.mockito.Mockito.*;
 class AdminControllerTest {
     @Mock
     private DeviceService deviceService;
+    @Mock
+    private AuthenticationService authenticationService;
     @Mock
     private RequestService requestService;
     @Mock
@@ -69,32 +68,6 @@ class AdminControllerTest {
 
         // Assert the response
         assertEquals(200, response.getStatusCodeValue());
-    }
-
-    @Test
-    void viewRequest() {
-//        List<Request> dummyRequests = new ArrayList<>();
-//        dummyRequests.add(new Request());
-//        dummyRequests.add(new Request());
-//        // Add more dummy requests as needed
-//
-//        // Mock the getRequestAdmin() method to return the dummy requests
-//        when(requestService.getRequestAdmin()).thenReturn(dummyRequests);
-//
-//        // Call the viewRequest() method
-//        ResponseEntity<?> responseEntity = adminController.viewRequest();
-//
-//        // Assert that the response entity is not null
-//        assertNotNull(responseEntity);
-//
-//        // Assert that the status code is OK (200)
-//        assertEquals(200, responseEntity.getStatusCodeValue());
-//
-//        // Assert that the body of the response entity contains the dummy requests
-//        List<Request> responseBody = (List<Request>) responseEntity.getBody();
-//        assertNotNull(responseBody);
-//        assertEquals(dummyRequests.size(), responseBody.size());
-        // You can further assert the contents of the responseBody if needed
     }
 
     @Test
@@ -242,5 +215,21 @@ class AdminControllerTest {
 
         // Assert that the response entity is not null
         assertEquals(200, responseEntity.getStatusCodeValue());
+    }
+
+    @Test
+    void createUser() {
+        AuthRequest authRequest = new AuthRequest("username", "password", "email@example.com", 1, "firstName", "lastName", 1);
+        User expectedUser = new User(1, "username", "email@example.com", "firstName", "lastName");
+
+        // Mock the saveUser() method to return the expected user
+        when(authenticationService.saveUser(any(AuthRequest.class))).thenReturn(expectedUser);
+
+        // Call the createUser() method
+        ResponseEntity<User> responseEntity = adminController.createUser(authRequest);
+
+        // Assert that the response entity is not null and contains the expected user
+        assertEquals(200, responseEntity.getStatusCodeValue());
+        assertEquals(expectedUser, responseEntity.getBody());
     }
 }

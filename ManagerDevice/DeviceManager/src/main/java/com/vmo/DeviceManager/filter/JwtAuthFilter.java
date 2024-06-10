@@ -19,7 +19,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.thymeleaf.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 @Component
@@ -36,7 +36,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String token;
         String useremail ;
         System.out.println(authHeader);
-        if (StringUtils.isEmpty(authHeader) && !org.apache.commons.lang3.StringUtils.startsWith(authHeader,"Bearer ")) {
+        //Kiểm tra nếu rỗng thì bỏ quá đẻ sử dụng cho những API Login...
+        if (StringUtils.isEmpty(authHeader) || !org.apache.commons.lang3.StringUtils.startsWith(authHeader,"Bearer ")) {
             filterChain.doFilter(request,response);
             return;
         }
@@ -52,20 +53,18 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         if (!StringUtils.isEmpty(useremail) && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailService.userDetailsService().loadUserByUsername(useremail);
-
                 if (jwtService.validateToken(token, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                    System.out.println(userDetails.getAuthorities());
-                    System.out.println(userDetails.getUsername());
                     User user = userRepository.findByEmail(userDetails.getUsername())
                             .orElseThrow(() -> new UserException(userDetails.getUsername()));
-                    System.out.print(user.getToken());
+                    //Kiểm tra user xem có token hay chưa
                     if(user.getToken()==null || user.getToken().isEmpty()  ){
-                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                        response.setStatus(401);
+                        response.getWriter().print("Unauthorized");
                         return;
                     }
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    System.out.println(authToken.getAuthorities().toString());
+                    //Lưu authentoken vào authentication để có thể lấy ra
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
         }

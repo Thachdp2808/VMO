@@ -13,6 +13,7 @@ import com.vmo.DeviceManager.repositories.UserRepository;
 import com.vmo.DeviceManager.utils.EmailUtil;
 import com.vmo.DeviceManager.utils.OtpUtil;
 import jakarta.mail.MessagingException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -39,12 +40,11 @@ public class AuthenticationService {
 
     private final JwtService jwtService;
 
-    public User saveUser(AuthRequest authRequest){
+    public User saveUser(@Valid AuthRequest authRequest){
         Optional<User> existingUser = userRepository.findByEmail(authRequest.getEmail());
         if (existingUser.isPresent()) {
             throw new UserException("Email already exists");
         }
-
         User user = new User();
         user.setEmail(authRequest.getEmail());
         user.setFirstName(authRequest.getFirstName());
@@ -101,6 +101,9 @@ public class AuthenticationService {
     }
 
     public JwtAuthenticationReponse signin(SigninAuthen signinAuthen){
+        if(signinAuthen.getEmail().equals("^(.+)@(.+)$")){
+            throw new UserException("In valid email or password");
+        }
         var user = userRepository.findByEmail(signinAuthen.getEmail()).orElseThrow(() -> new UserException("In valid email or password"));
         if (user.getStatus() == EstatusUser.Deactive) {
             throw new UserException("User account is deactivated");
@@ -114,7 +117,6 @@ public class AuthenticationService {
         JwtAuthenticationReponse jwtAuthenticationReponse = new JwtAuthenticationReponse();
         jwtAuthenticationReponse.setToken(jwt);
         user.setToken(jwtAuthenticationReponse.getToken());
-
         userRepository.save(user);
         return jwtAuthenticationReponse;
     }

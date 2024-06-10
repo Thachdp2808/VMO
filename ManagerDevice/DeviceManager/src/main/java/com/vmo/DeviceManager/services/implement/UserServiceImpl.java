@@ -11,6 +11,7 @@ import com.vmo.DeviceManager.repositories.UserRepository;
 import com.vmo.DeviceManager.services.DepartmentService;
 import com.vmo.DeviceManager.services.UserService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -92,7 +93,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public String updateProfile( AuthRequest authRequest) {
+    public String updateProfile(@Valid AuthRequest authRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
         User existingUser = userRepository.findById(currentUser.getUserId())

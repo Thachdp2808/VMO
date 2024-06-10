@@ -12,7 +12,7 @@ public interface RequestDetailRepository extends JpaRepository<RequestDetail,Int
     @Query(value = "SELECT \n" +
             "    d.device_id, \n" +
             "    d.device_name, \n" +
-            "    SUM(DATEDIFF(rd.end_time, rd.start_time)) AS total_duration_days\n" +
+            "    SUM(DATEDIFF(r.actual_end_time, rd.start_time)) AS total_duration_days\n" +
             "FROM \n" +
             "    request_details rd \n" +
             "    JOIN requests r ON rd.request_id = r.request_id\n" +

@@ -1,6 +1,7 @@
 package com.vmo.DeviceManager.services;
 
 import com.vmo.DeviceManager.config.SecurityConfig;
+import com.vmo.DeviceManager.exceptions.model.UserException;
 import com.vmo.DeviceManager.models.User;
 import com.vmo.DeviceManager.repositories.DepartmentRepository;
 import com.vmo.DeviceManager.repositories.UserRepository;
@@ -67,7 +68,7 @@ class UserDetailServiceTest {
         when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(UsernameNotFoundException.class, () -> userDetailService.userDetailsService().loadUserByUsername(email));
+        assertThrows(UserException.class, () -> userDetailService.userDetailsService().loadUserByUsername(email));
         verify(userRepository, times(1)).findByEmail(email);
     }
 

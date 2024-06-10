@@ -57,7 +57,7 @@ class DeviceServiceTest {
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             deviceService.addDevice(deviceDto);
         });
-        assertEquals("Category does not exist", exception.getMessage());
+        assertEquals("Could not find category 1", exception.getMessage());
     }
 
     @Test
@@ -136,7 +136,7 @@ class DeviceServiceTest {
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             deviceService.updateDevice(deviceId,deviceDto);
         });
-        assertEquals("Device does not exist", exception.getMessage());
+        assertEquals("Could not find device 1", exception.getMessage());
     }
 
     @Test
@@ -167,7 +167,7 @@ class DeviceServiceTest {
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             deviceService.updateDevice(deviceId,deviceDto);
         });
-        assertEquals("Category does not exist", exception.getMessage());
+        assertEquals("Could not find category 1", exception.getMessage());
     }
 
     @Test
@@ -271,7 +271,7 @@ class DeviceServiceTest {
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             deviceService.getDeviceById(deviceId);
         });
-        assertEquals("Device does not exits", exception.getMessage());
+        assertEquals("Could not find device 1", exception.getMessage());
     }
 
     @Test

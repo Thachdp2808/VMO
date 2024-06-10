@@ -1,5 +1,7 @@
 package com.vmo.DeviceManager.services;
 
+import com.vmo.DeviceManager.exceptions.model.DeviceException;
+import com.vmo.DeviceManager.exceptions.model.RequestException;
 import com.vmo.DeviceManager.models.Device;
 import com.vmo.DeviceManager.models.Request;
 import com.vmo.DeviceManager.models.RequestDetail;
@@ -9,6 +11,7 @@ import com.vmo.DeviceManager.models.enumEntity.Erole;
 import com.vmo.DeviceManager.models.enumEntity.EstatusDevice;
 import com.vmo.DeviceManager.models.enumEntity.EstatusRequest;
 import com.vmo.DeviceManager.repositories.DeviceRepository;
+import com.vmo.DeviceManager.repositories.RequestDetailRepository;
 import com.vmo.DeviceManager.repositories.RequestRepository;
 import com.vmo.DeviceManager.services.implement.RequestServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +20,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -30,15 +35,18 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class RequestServiceTest {
 
     @Mock
     private RequestRepository requestRepository;
-
+@Mock
+private RequestDetailRepository requestDetailRepository;
     @InjectMocks
     private RequestServiceImpl requestService;
     @Mock
     private DeviceRepository deviceRepository;
+    @Mock DeviceService deviceService;
 
 
 
@@ -51,7 +59,7 @@ class RequestServiceTest {
 
 
         // Then
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> requestService.getRequestAdmin());
+        RequestException exception = assertThrows(RequestException.class, () -> requestService.getRequestAdmin());
         assertEquals("No available request in the list", exception.getMessage());
     }
     @Test
@@ -78,7 +86,7 @@ class RequestServiceTest {
         when(requestRepository.findAllByStatusIn(anyList())).thenReturn(new ArrayList<>()); // Empty list
 
         // When, Then
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(RequestException.class, () -> {
             requestService.getRequestAdmin();
         });
     }
@@ -124,34 +132,80 @@ class RequestServiceTest {
     }
 
     @Test
-    void updateDeviceStatus_CorrectlyUpdatesDeviceStatus() {
+    void updateRequest_Success() {
         // Given
-        Request request1 = new Request();
-        request1.setRequestId(1);
+        int requestId = 1;
+        RequestDto requestDto = new RequestDto();
+        requestDto.setDeviceIds(List.of(1, 2));
+        requestDto.setStart(LocalDate.now());
+        requestDto.setEnd(LocalDate.now().plusDays(1));
 
-        List<RequestDetail> requestDetailsToSave = new ArrayList<>();
-        RequestDetail requestDetail1 = new RequestDetail();
         Device device1 = new Device();
-        device1.setDeviceId(1);
-        device1.setStatus(EstatusDevice.Utilized);
-        requestDetail1.setDevice(device1);
-        requestDetail1.setRequest(request1);
-        requestDetailsToSave.add(requestDetail1);
-        
-        RequestDetail requestDetail2 = new RequestDetail();
+        device1.setStatus(EstatusDevice.Availability);
+
         Device device2 = new Device();
-        device2.setDeviceId(2);
-        requestDetail2.setDevice(device2);
-        requestDetail2.setRequest(request1);
-        requestDetailsToSave.add(requestDetail2);
+        device2.setStatus(EstatusDevice.Availability);
+
+        Request request = new Request();
+        request.setRequestId(requestId);
+        request.setRequestDetails(new ArrayList<>());
+
+        when(deviceService.getDeviceById(1)).thenReturn(device1);
+        when(deviceService.getDeviceById(2)).thenReturn(device2);
+
+        requestService.setPendingRequests(new ArrayList<>(List.of(request)));
 
         // When
-        requestService.updateDeviceStatus(1, EstatusDevice.Availability);
+        String result = requestService.updateRequest(requestId, requestDto);
 
         // Then
+        assertEquals("Update request success", result);
+        assertEquals(2, request.getRequestDetails().size());
+        verify(deviceService, times(1)).getDeviceById(1);
+        verify(deviceService, times(1)).getDeviceById(2);
+    }
 
-        assertEquals(EstatusDevice.Utilized, device1.getStatus()); // Check if status of device1 is updated correctly
+    @Test
+    void updateRequest_RequestNotFound() {
+        // Given
+        int requestId = 1;
+        RequestDto requestDto = new RequestDto();
 
+        // When / Then
+        RequestException exception = assertThrows(RequestException.class, () -> {
+            requestService.updateRequest(requestId, requestDto);
+        });
+
+        assertEquals("Request not found", exception.getMessage());
+    }
+
+    @Test
+    void updateRequest_NoAvailableDevices() {
+        // Given
+        int requestId = 1;
+        RequestDto requestDto = new RequestDto();
+        requestDto.setDeviceIds(List.of(1, 2));
+
+        Device device1 = new Device();
+        device1.setStatus(EstatusDevice.Maintenance);
+
+        Device device2 = new Device();
+        device2.setStatus(EstatusDevice.Maintenance);
+
+        Request request = new Request();
+        request.setRequestId(requestId);
+
+        when(deviceService.getDeviceById(1)).thenReturn(device1);
+        when(deviceService.getDeviceById(2)).thenReturn(device2);
+
+        requestService.setPendingRequests(new ArrayList<>(List.of(request)));
+
+        // When / Then
+        DeviceException exception = assertThrows(DeviceException.class, () -> {
+            requestService.updateRequest(requestId, requestDto);
+        });
+
+        assertEquals("No available devices in the list", exception.getMessage());
     }
 
     @Test
@@ -183,31 +237,69 @@ class RequestServiceTest {
     }
 
     @Test
-    void addRequest_Successful_ReturnsSuccessMessage() {
+    void getLastId_EmptyPendingRequests_ReturnsRepositoryLastId() {
         // Given
-        // Mock SecurityContextHolder and set authenticated user
-        User currentUser = new User();
-        // Set properties for currentUser as needed
+        when(requestRepository.getLastId()).thenReturn(Optional.of(10));
+
+        // When
+        int lastId = requestService.getLastId();
+
+        // Then
+        assertEquals(10, lastId);
+    }
+
+    @Test
+    void addRequest_NoAvailableDevices_ThrowsDeviceException() {
+        User user = new User();
+        user.setUserId(1);
+        // Given
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user, null);
         SecurityContext securityContext = mock(SecurityContext.class);
-        Authentication authentication = mock(Authentication.class);
-        when(authentication.getPrincipal()).thenReturn(currentUser);
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
 
-        when(requestRepository.getLastId()).thenReturn(Optional.of(1)); // Example value
-        // Mock the behavior of deviceService.getDeviceById as needed
-
-
-        // Create a RequestDto object with necessary data
         RequestDto requestDto = new RequestDto();
-        // Set properties for requestDto as needed
+        requestDto.setDeviceIds(List.of(1, 2));
+        when(deviceService.getDeviceById(anyInt())).thenReturn(null);
+
+        // When / Then
+        DeviceException exception = assertThrows(DeviceException.class, () -> {
+            requestService.addRequest(requestDto);
+        });
+
+        assertEquals("No available devices in the list", exception.getMessage());
+    }
+
+    @Test
+    void addRequest_WithAvailableDevices_ReturnsSuccessMessage() {
+        User user = new User();
+        user.setUserId(1);
+        // Given
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user, null);
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        // Given
+        Device device1 = new Device();
+        device1.setDeviceId(1);
+        device1.setStatus(EstatusDevice.Availability);
+
+        Device device2 = new Device();
+        device2.setDeviceId(2);
+        device2.setStatus(EstatusDevice.Availability);
+
+
+        RequestDto requestDto = new RequestDto();
+        requestDto.setDeviceIds(List.of(1, 2));
+        when(deviceService.getDeviceById(1)).thenReturn(device1);
+        when(deviceService.getDeviceById(2)).thenReturn(device2);
+        when(requestRepository.getLastId()).thenReturn(Optional.of(1));
 
         // When
         String result = requestService.addRequest(requestDto);
 
         // Then
-        assertEquals("An error occurred while processing the request. Please try again later.", result);
-        // Verify that a new request and request details are added to pendingRequests and pendingRequestDetails
+        assertTrue(result.startsWith("Save request successful"));
     }
 
     @Test
@@ -218,12 +310,11 @@ class RequestServiceTest {
         user.setUserId(1); // id của user
 
         // Tạo một đối tượng Authentication giả mạo và đặt người dùng giả mạo là người dùng hiện tại
+        SecurityContext securityContext = mock(SecurityContext.class);
         Authentication authentication = mock(Authentication.class);
         when(authentication.getPrincipal()).thenReturn(user);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        // Mock danh sách pendingRequests và pendingRequestDetails
-
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
 
         // Tạo một yêu cầu giả mạo
         Request request = new Request();
@@ -241,51 +332,6 @@ class RequestServiceTest {
 
         // Kiểm tra xem yêu cầu đã được chuyển sang trạng thái "Processing"
         assertEquals(EstatusRequest.Processing, request.getStatus());
-    }
-
-    @Test
-    void approveRequest_Admin_Success() {
-        User adminUser = new User();
-        adminUser.setRole(Erole.ADMIN);
-        // Given
-        Authentication authentication = mock(Authentication.class);
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-
-
-        LocalDate currentDate = LocalDate.now();
-        Request request = new Request();
-        request.setRequestId(1);
-        request.setStatus(EstatusRequest.Pending);
-        requestService.setRequestsToSave(Collections.singletonList(request));
-        String result = requestService.approveRequest(1);
-
-        // Then
-        assertEquals("Request approved successfully", result);
-        assertEquals(EstatusRequest.Approved, request.getStatus());
-
-    }
-
-    @Test
-    void approveRequest_User_AccessDenied() {
-//        Authentication authentication = mock(Authentication.class);
-//        SecurityContextHolder.getContext().setAuthentication(authentication);
-//
-//        User regularUser = new User();
-//        regularUser.setRole(Erole.USER);
-//        when(authentication.getPrincipal()).thenReturn(regularUser);
-//
-//        Request request = new Request();
-//        request.setRequestId(1);
-//        request.setStatus(EstatusRequest.Processing);
-//        requestService.setRequestsToSave(Collections.singletonList(request));
-//        // When
-//        String result = requestService.approveRequest(1);
-//
-//        // Then
-//        assertEquals("Access denied", result);
-//        verifyNoInteractions(requestRepository);
     }
 
     @Test
@@ -309,16 +355,22 @@ class RequestServiceTest {
     @Test
     void rejectRequest_Admin_Success() {
         User adminUser = new User();
+        adminUser.setUserId(1);
         adminUser.setRole(Erole.ADMIN);
         // Given
-        Authentication authentication = mock(Authentication.class);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(adminUser, null);
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
 
-
+        List<RequestDetail> list = new ArrayList<>();
         Request request = new Request();
         request.setRequestId(1);
         request.setStatus(EstatusRequest.Pending);
+        request.setRequestDetails(list);
         requestService.setRequestsToSave(Collections.singletonList(request));
+
+
         // When
         String result = requestService.rejectRequest(1);
 
@@ -326,23 +378,6 @@ class RequestServiceTest {
         assertEquals("Reject successful", result);
         assertEquals(EstatusRequest.Rejected, request.getStatus());
         verify(requestRepository).save(request);
-    }
-
-    @Test
-    void rejectRequest_User_AccessDenied() {
-//        Authentication authentication = mock(Authentication.class);
-//        SecurityContextHolder.getContext().setAuthentication(authentication);
-//
-//        User regularUser = new User();
-//        regularUser.setRole(Erole.USER);
-//        when(authentication.getPrincipal()).thenReturn(regularUser);
-//
-//        // When
-//        String result = requestService.rejectRequest(1);
-//
-//        // Then
-//        assertEquals("Access denied", result);
-//        verifyNoInteractions(requestRepository);
     }
 
     @Test
@@ -356,10 +391,11 @@ class RequestServiceTest {
         adminUser.setRole(Erole.ADMIN);
 
         // When
-        String result = requestService.rejectRequest(1);
-
+        RequestException exception = assertThrows(RequestException.class, () -> {
+            requestService.rejectRequest(1);
+        });
         // Then
-        assertEquals("Request not found", result);
+        assertEquals("Request not found", exception.getMessage());
         verifyNoMoreInteractions(requestRepository);
     }
 

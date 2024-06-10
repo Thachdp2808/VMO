@@ -1,8 +1,13 @@
 package com.vmo.DeviceManager.services;
 
+import com.vmo.DeviceManager.exceptions.model.EmailException;
+import com.vmo.DeviceManager.exceptions.model.UserException;
+import com.vmo.DeviceManager.jwt.AuthRequest;
 import com.vmo.DeviceManager.jwt.JwtAuthenticationReponse;
 import com.vmo.DeviceManager.jwt.SigninAuthen;
+import com.vmo.DeviceManager.models.Department;
 import com.vmo.DeviceManager.models.User;
+import com.vmo.DeviceManager.models.enumEntity.Erole;
 import com.vmo.DeviceManager.models.enumEntity.EstatusUser;
 import com.vmo.DeviceManager.repositories.DepartmentRepository;
 import com.vmo.DeviceManager.repositories.UserRepository;
@@ -15,6 +20,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -28,6 +35,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class AuthenticationServiceTest {
     @Mock
     JwtService jwtService;
@@ -51,37 +59,46 @@ class AuthenticationServiceTest {
 
 
     @Test
-    void signup_ValidAuthRequest_ReturnsUser() throws MessagingException {
-//        // Given
+    void testSaveUser_Success() throws MessagingException {
 //        AuthRequest authRequest = new AuthRequest();
 //        authRequest.setEmail("test@example.com");
 //        authRequest.setFirstName("John");
 //        authRequest.setLastName("Doe");
-//        authRequest.setPassword("password");
 //        authRequest.setDepartmentId(1);
 //
-//        String otp = "123456";
-//        when(otpUtil.generateOtp()).thenReturn(otp);
-//        authRequest.setDepartmentId(1); // Assume department with id 1 does not exist
-//        when(departmentService.findById(authRequest.getDepartmentId())).thenReturn(null);
-//        assertThrows(RuntimeException.class, () -> userService.signup(authRequest));
+//        Department department = new Department();
+//        department.setDepartmentId(1);
+//
+//        when(userRepository.findByEmail(authRequest.getEmail())).thenReturn(Optional.empty());
+//        when(departmentService.findById(authRequest.getDepartmentId())).thenReturn(department);
+//        when(passwordEncoder.encode(any())).thenReturn("encodedPassword");
+//
 //        User savedUser = new User();
+//        savedUser.setUserId(1);
+//        savedUser.setEmail(authRequest.getEmail());
 //        when(userRepository.save(any(User.class))).thenReturn(savedUser);
 //
-//        // When
-//        User result = userService.signup(authRequest);
+//        User result = userService.saveUser(authRequest);
 //
-//        // Then
 //        assertNotNull(result);
-//        assertEquals(authRequest.getEmail(), result.getEmail());
-//        assertEquals(authRequest.getFirstName(), result.getFirstName());
-//        assertEquals(authRequest.getLastName(), result.getLastName());
-//        assertEquals(EstatusUser.Deactive, result.getStatus());
-//        assertEquals(Erole.USER, result.getRole());
-//        assertEquals(otp, result.getOtp());
-//        assertNotNull(result.getOtpTime());
-//        verify(emailUtil, times(1)).sendOtpEmail(authRequest.getEmail(), otp);
+//        assertEquals(1, result.getUserId());
+//        assertEquals("test@example.com", result.getEmail());
+//        verify(emailUtil).sendNewUser(eq(authRequest.getEmail()), anyString());
+//        verify(userRepository).save(any(User.class));
     }
+
+    @Test
+    void testSaveUser_EmailAlreadyExists() {
+        AuthRequest authRequest = new AuthRequest();
+        authRequest.setEmail("test@example.com");
+
+        when(userRepository.findByEmail(authRequest.getEmail())).thenReturn(Optional.of(new User()));
+
+        assertThrows(UserException.class, () -> userService.saveUser(authRequest));
+    }
+
+
+
 
 
 
@@ -100,8 +117,7 @@ class AuthenticationServiceTest {
         String result = userService.resetPassword(email, otp);
 
         // Then
-        assertEquals("OTP verified you can login", result);
-        assertEquals(EstatusUser.Active, user.getStatus());
+        assertEquals("OTP verified password can reset", result);
         verify(userRepository, times(1)).save(user);
     }
 

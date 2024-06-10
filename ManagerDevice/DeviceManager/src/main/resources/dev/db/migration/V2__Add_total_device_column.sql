@@ -1,0 +1,1 @@
+ALTER TABLE users ADD COLUMN total_device INT DEFAULT 0;

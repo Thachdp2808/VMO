@@ -25,8 +25,6 @@ import java.util.List;
 public class UserController {
     private final DeviceService deviceService;
 
-    private final RequestService requestService;
-
     @GetMapping("")
     public ResponseEntity<String> sayHello(){
         return ResponseEntity.ok("Hi User");

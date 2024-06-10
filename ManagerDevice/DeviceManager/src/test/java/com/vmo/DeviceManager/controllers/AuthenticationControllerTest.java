@@ -23,27 +23,6 @@ class AuthenticationControllerTest {
     @InjectMocks
     private AuthenticationController authenticationController;
 
-    @Test
-    void signup() {
-        AuthRequest authRequest = new AuthRequest();
-        User mockUser = new User();
-
-        // Mock the service method call
-        Mockito.when(authenticationService.signup(Mockito.any(AuthRequest.class))).thenReturn(mockUser);
-
-        // Call the controller method
-        ResponseEntity<User> responseEntity = authenticationController.signup(authRequest);
-
-        // Verify that the service method was called with the correct argument
-        Mockito.verify(authenticationService).signup(authRequest);
-
-        // Verify that the controller returns a ResponseEntity with status code 200 OK
-        Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-
-        // Verify the response body
-        User returnedUser = responseEntity.getBody();
-        Assert.assertNotNull(returnedUser);
-    }
 
     @Test
     void verifyAccount() {

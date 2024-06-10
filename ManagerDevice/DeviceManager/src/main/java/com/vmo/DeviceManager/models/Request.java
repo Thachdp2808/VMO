@@ -15,12 +15,10 @@ import java.util.List;
 @AllArgsConstructor
 @Data
 @Builder
-
 @Entity
 @Table(name = "requests")
 public class Request {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int requestId;
     @Column(nullable = false, name = "created_date")
     private Date createdDate;
