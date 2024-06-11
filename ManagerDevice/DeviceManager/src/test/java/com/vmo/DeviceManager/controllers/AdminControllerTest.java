@@ -5,6 +5,7 @@ import com.vmo.DeviceManager.models.Device;
 import com.vmo.DeviceManager.models.Request;
 import com.vmo.DeviceManager.models.User;
 import com.vmo.DeviceManager.models.dto.DeviceDto;
+import com.vmo.DeviceManager.models.dto.SaveUserDto;
 import com.vmo.DeviceManager.services.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -219,11 +220,11 @@ class AdminControllerTest {
 
     @Test
     void createUser() {
-        AuthRequest authRequest = new AuthRequest("username", "password", "email@example.com", 1, "firstName", "lastName", 1);
+        SaveUserDto authRequest = new SaveUserDto("username", "email@example.com", 1, "firstName", "lastName", 1);
         User expectedUser = new User(1, "username", "email@example.com", "firstName", "lastName");
 
         // Mock the saveUser() method to return the expected user
-        when(authenticationService.saveUser(any(AuthRequest.class))).thenReturn(expectedUser);
+        when(authenticationService.saveUser(any(SaveUserDto.class))).thenReturn(expectedUser);
 
         // Call the createUser() method
         ResponseEntity<User> responseEntity = adminController.createUser(authRequest);

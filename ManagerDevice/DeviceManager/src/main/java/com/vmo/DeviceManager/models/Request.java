@@ -3,9 +3,13 @@ package com.vmo.DeviceManager.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.vmo.DeviceManager.models.dto.UserDto;
 import com.vmo.DeviceManager.models.enumEntity.EstatusRequest;
+import com.vmo.DeviceManager.models.event.RequestEvent;
+import com.vmo.DeviceManager.models.event.RequestReturnEvent;
 import com.vmo.DeviceManager.models.mapper.UserMapper;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.sql.Date;
 import java.util.List;
@@ -17,6 +21,7 @@ import java.util.List;
 @Builder
 @Entity
 @Table(name = "requests")
+@EntityListeners(Request.RequestEntityListener.class)
 public class Request {
     @Id
     private int requestId;
@@ -50,5 +55,26 @@ public class Request {
                 ", requestDetails=" + requestDetails +
                 ", reason='" + reason + '\'' +
                 '}';
+    }
+    public static class RequestEntityListener {
+        @Autowired
+        private ApplicationEventPublisher eventPublisher;
+
+        @PostUpdate
+        //để phát hiện khi trạng thái của một thực thể thay đổi và phát sự kiện Spring.
+        public void onPostUpdate(Request request) {
+            boolean statusChanged = request.getStatus() == EstatusRequest.Approved;
+            boolean endTimeChanged = request.getActualEndTime() != null;
+
+            if (statusChanged && !endTimeChanged) {
+                int total = request.getRequestDetails().size();
+                System.out.println("Total request details: " + total);
+                eventPublisher.publishEvent(new RequestEvent(request.getUserCreated(), total));
+            } else if (endTimeChanged) {
+                int total = request.getRequestDetails().size();
+                System.out.println("Total request details: " + total);
+                eventPublisher.publishEvent(new RequestReturnEvent(request.getUserCreated(), total));
+            }
+        }
     }
 }

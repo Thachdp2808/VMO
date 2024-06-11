@@ -2,10 +2,10 @@ package com.vmo.DeviceManager.services;
 
 import com.vmo.DeviceManager.exceptions.model.EmailException;
 import com.vmo.DeviceManager.exceptions.model.UserException;
-import com.vmo.DeviceManager.jwt.AuthRequest;
 import com.vmo.DeviceManager.jwt.JwtAuthenticationReponse;
 import com.vmo.DeviceManager.jwt.SigninAuthen;
 import com.vmo.DeviceManager.models.Department;
+import com.vmo.DeviceManager.models.dto.SaveUserDto;
 import com.vmo.DeviceManager.models.enumEntity.Erole;
 import com.vmo.DeviceManager.models.User;
 import com.vmo.DeviceManager.models.enumEntity.EstatusUser;
@@ -40,7 +40,7 @@ public class AuthenticationService {
 
     private final JwtService jwtService;
 
-    public User saveUser(@Valid AuthRequest authRequest){
+    public User saveUser(@Valid SaveUserDto authRequest) {
         Optional<User> existingUser = userRepository.findByEmail(authRequest.getEmail());
         if (existingUser.isPresent()) {
             throw new UserException("Email already exists");

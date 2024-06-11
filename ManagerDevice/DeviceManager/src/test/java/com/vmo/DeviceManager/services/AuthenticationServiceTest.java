@@ -7,6 +7,7 @@ import com.vmo.DeviceManager.jwt.JwtAuthenticationReponse;
 import com.vmo.DeviceManager.jwt.SigninAuthen;
 import com.vmo.DeviceManager.models.Department;
 import com.vmo.DeviceManager.models.User;
+import com.vmo.DeviceManager.models.dto.SaveUserDto;
 import com.vmo.DeviceManager.models.enumEntity.Erole;
 import com.vmo.DeviceManager.models.enumEntity.EstatusUser;
 import com.vmo.DeviceManager.repositories.DepartmentRepository;
@@ -89,7 +90,7 @@ class AuthenticationServiceTest {
 
     @Test
     void testSaveUser_EmailAlreadyExists() {
-        AuthRequest authRequest = new AuthRequest();
+        SaveUserDto authRequest = new SaveUserDto();
         authRequest.setEmail("test@example.com");
 
         when(userRepository.findByEmail(authRequest.getEmail())).thenReturn(Optional.of(new User()));

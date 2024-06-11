@@ -5,6 +5,7 @@ import com.vmo.DeviceManager.models.Device;
 import com.vmo.DeviceManager.models.Request;
 import com.vmo.DeviceManager.models.User;
 import com.vmo.DeviceManager.models.dto.DeviceDto;
+import com.vmo.DeviceManager.models.dto.SaveUserDto;
 import com.vmo.DeviceManager.models.dto.UserDto;
 import com.vmo.DeviceManager.services.*;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -99,7 +100,7 @@ public class AdminController {
         return ResponseEntity.ok(userService.updateUserById(id, authRequest));
     }
     @PostMapping("/users")
-    public ResponseEntity<User> createUser(@RequestBody @Valid AuthRequest authRequest){
+    public ResponseEntity<User> createUser(@RequestBody @Valid SaveUserDto authRequest){
         return ResponseEntity.ok(authenticationService.saveUser(authRequest));
     }
 

@@ -298,19 +298,11 @@ public class RequestServiceImpl implements RequestService {
         requestToApprove.setStatus(EstatusRequest.Approved);
         requestToApprove.setResolveDate(Date.valueOf(currentDate));
         requestToApprove.setUserResolve(currentUser.getUserId());
-
-
         requestRepository.save(requestToApprove);
-        int total = 0;
         List<RequestDetail> requestDetail = requestToApprove.getRequestDetails();
         for(RequestDetail request: requestDetail){
-            total ++;
             requestDetailRepository.save(request);
         }
-        if (requestToApprove.getStatus() == EstatusRequest.Approved) {
-            eventPublisher.publishEvent(new RequestEvent(requestToApprove.getUserCreated(), total));
-        }
-        //Sửa lại
         requestsToSave.remove(requestToApprove);
         // Cập nhật trạng thái của các thiết bị liên quan
         updateDeviceStatus(requestId, EstatusDevice.Utilized);
